@@ -25,17 +25,6 @@
        (breaks nil (cons (floor (* i (/ length parts))) breaks)))
       ((>= i parts) (reverse breaks))))
 
-(defun test-subsets (list-of-subsets input)
-  (and list-of-subsets
-       (let ((begin (first list-of-subsets))
-             (end (second list-of-subsets)))
-         (let ((subset (if end
-                           (subseq input begin end)
-                           (subseq input begin))))
-           (if (run-on-input subset)
-               'yes
-               (test-subsets (cdr list-of-subsets) input))))))
-
 ;; FIXME: these two functions share a lot of code
 (defun test-subsets (list-of-subsets input)
   (and list-of-subsets

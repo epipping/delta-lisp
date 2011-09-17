@@ -36,6 +36,7 @@
                'yes
                (test-subsets (cdr list-of-subsets) input))))))
 
+;; FIXME: these two functions share a lot of code
 (defun test-subsets (list-of-subsets input)
   (and list-of-subsets
        (let ((begin (first list-of-subsets))

@@ -1,6 +1,7 @@
 ;; -*- mode:common-lisp; indent-tabs-mode: nil -*-
 
 ;; FIXME: Do caching
+;; FIXME: verify that initial version passes.
 
 (defparameter sample-list '(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
                             17 18 19 20 21 22 23 24 25 26 27 28 29 30
@@ -16,12 +17,24 @@
                             141 142 143 144 145 146 147 148 149 150
                             151 152 153 154 155 156 157))
 
+;; FIXME: splits by newline at this point already
+(defun read-input (filename)
+  (let (buf)
+    (with-open-file (stream filename)
+      (loop for line = (read-line stream nil 'end)
+            until (eq line 'end)
+            do (push line buf)))
+    (reverse buf)))
+
+(defun add-newlines (list-of-strings)
+  (format nil "~{~a~%~}" list-of-strings))
+
 (defun run-on-input (input)
-  (and (member 1 input)
-       (member 10 input)
-       (member 146 input)
-       (member 39 input)
-       (> (length input) 4)))
+  ;; Create temporary file
+  (with-open-file (stream "output" :direction :output :if-exists :supersede)
+    (format stream (add-newlines input)))
+  ;; Run test program on the temporary file
+  (= 0 (sb-ext:process-exit-code (sb-ext:run-program "./test.sh" '("output")))))
 
 (defun compute-breaks (length parts)
   (do ((i 0 (1+ i))

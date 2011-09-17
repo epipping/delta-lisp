@@ -39,14 +39,15 @@
              (return subset))))
 
 (defun test-complements (list-of-subsets input)
-  (loop for los = list-of-subsets then (cdr los)
-        while los
-        for begin = (first los)
-        for end = (second los)
-        for complement = (append (subseq input 0 begin)
-                                 (and end (subseq input end)))
-        do (when (run-on-input complement)
-             (return complement))))
+  (when (cddr list-of-subsets) ; Minor optimization as long as there is no caching
+    (loop for los = list-of-subsets then (cdr los)
+          while los
+          for begin = (first los)
+          for end = (second los)
+          for complement = (append (subseq input 0 begin)
+                                   (and end (subseq input end)))
+          do (when (run-on-input complement)
+               (return complement)))))
 
 (defun delta (input)
   (labels ((ddmin (list parts)

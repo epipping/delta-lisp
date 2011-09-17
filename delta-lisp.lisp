@@ -29,22 +29,24 @@
 
 ;; FIXME: these two functions share a lot of code
 (defun test-subsets (list-of-subsets input)
-  (and list-of-subsets
-       (let ((begin (first list-of-subsets))
-             (end (second list-of-subsets)))
-         (let ((subset (or (and end (subseq input begin end))
-                           (subseq input begin))))
-           (or (and (run-on-input subset) subset)
-               (test-subsets (cdr list-of-subsets) input))))))
+  (loop for los = list-of-subsets then (cdr los)
+        while los
+        for begin = (first los)
+        for end = (second los)
+        for subset = (or (and end (subseq input begin end))
+                         (subseq input begin))
+        do (when (run-on-input subset)
+             (return subset))))
 
 (defun test-complements (list-of-subsets input)
-  (and list-of-subsets
-       (let ((begin (first list-of-subsets))
-             (end (second list-of-subsets)))
-         (let ((subset (append (subseq input 0 begin)
-                               (and end (subseq input end)))))
-           (or (and (run-on-input subset) subset)
-               (test-complements (cdr list-of-subsets) input))))))
+  (loop for los = list-of-subsets then (cdr los)
+        while los
+        for begin = (first los)
+        for end = (second los)
+        for complement = (append (subseq input 0 begin)
+                                 (and end (subseq input end)))
+        do (when (run-on-input complement)
+             (return complement))))
 
 (defun delta (input)
   (labels ((ddmin (list parts)

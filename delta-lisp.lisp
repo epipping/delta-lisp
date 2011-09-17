@@ -61,11 +61,18 @@
 (defun delta (input)
   (labels ((ddmin (list parts)
              (let ((breaks (compute-breaks (length list) parts)))
-               (or (let ((subset (test-subsets breaks list)))
-                     (and subset (ddmin subset 2)))
-                   (let ((complement (test-complements breaks list)))
-                     (and complement (ddmin complement (max (1- parts) 2))))
-                   (and (< parts (length list))
-                        (ddmin list (min (length list) (* 2 parts)))) ; increase granularity
-                   list)))) ; done
+               (or
+                ;; check if a subset fails
+                (let ((subset (test-subsets breaks list)))
+                  (and subset (ddmin subset 2)))
+
+                ;; check if the complement of a subset fails
+                (let ((complement (test-complements breaks list)))
+                  (and complement (ddmin complement (max (1- parts) 2))))
+
+                ;; check if increasing granularity makes sense
+                (and (< parts (length list)) (ddmin list (min (length list) (* 2 parts))))
+
+                ;; done: found a 1-minimal subset
+                list))))
     (ddmin input 2)))

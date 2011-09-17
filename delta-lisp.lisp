@@ -40,22 +40,18 @@
   (and list-of-subsets
        (let ((begin (first list-of-subsets))
              (end (second list-of-subsets)))
-         (let ((subset (if end
-                           (subseq input begin end)
+         (let ((subset (or (and end (subseq input begin end))
                            (subseq input begin))))
-           (if (run-on-input subset)
-               subset
+           (or (and (run-on-input subset) subset)
                (test-subsets (cdr list-of-subsets) input))))))
 
 (defun test-complements (list-of-subsets input)
   (and list-of-subsets
        (let ((begin (first list-of-subsets))
              (end (second list-of-subsets)))
-         (let ((subset
-                 (append (subseq input 0 begin)
-                         (and end (subseq input end)))))
-           (if (run-on-input subset)
-               subset
+         (let ((subset (append (subseq input 0 begin)
+                               (and end (subseq input end)))))
+           (or (and (run-on-input subset) subset)
                (test-complements (cdr list-of-subsets) input))))))
 
 (defun delta (input)

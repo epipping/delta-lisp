@@ -80,3 +80,6 @@
                 ;; done: found a 1-minimal subset
                 list))))
     (ddmin input 2)))
+
+(defun delta-file (filename)
+  (delta (read-input filename)))

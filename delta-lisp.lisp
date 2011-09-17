@@ -56,15 +56,14 @@
 	       subset
 	       (test-complements (cdr list-of-subsets) input))))))
 
-(defun ddmin (list parts)
-  (let ((breaks (compute-breaks (length list) parts)))
-    (or (let ((subset (test-subsets breaks list)))
-	  (and subset (ddmin subset 2)))
-	(let ((complement (test-complements breaks list)))
-	  (and complement (ddmin complement (max (1- parts) 2))))
-	(and (< parts (length list))
-	     (ddmin list (min (length list) (* 2 parts)))) ; increase granularity
-	list))) ; done
-
-(defun delta (list)
-  (ddmin list 2))
+(defun delta (input)
+  (labels ((ddmin (list parts)
+	     (let ((breaks (compute-breaks (length list) parts)))
+	       (or (let ((subset (test-subsets breaks list)))
+		     (and subset (ddmin subset 2)))
+		   (let ((complement (test-complements breaks list)))
+		     (and complement (ddmin complement (max (1- parts) 2))))
+		   (and (< parts (length list))
+			(ddmin list (min (length list) (* 2 parts)))) ; increase granularity
+		   list)))) ; done
+    (ddmin input 2)))

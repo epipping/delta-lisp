@@ -58,15 +58,13 @@
 
 (defun ddmin (list parts)
   (let ((breaks (compute-breaks (length list) parts)))
-    (let ((subset (test-subsets breaks list)))
-      (if subset
-	  (ddmin subset 2)
-	  (let ((complement (test-complements breaks list)))
-	    (if complement
-		(ddmin complement (max (1- parts) 2))
-		(if (< parts (length list))
-		    (ddmin list (min (length list) (* 2 parts))) ; increase granularity
-		    list))))))) ; done
+    (or (let ((subset (test-subsets breaks list)))
+	  (and subset (ddmin subset 2)))
+	(let ((complement (test-complements breaks list)))
+	  (and complement (ddmin complement (max (1- parts) 2))))
+	(and (< parts (length list))
+	     (ddmin list (min (length list) (* 2 parts)))) ; increase granularity
+	list))) ; done
 
 (defun delta (list)
   (ddmin list 2))

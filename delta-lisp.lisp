@@ -31,10 +31,7 @@
 (defun test-subsets (list-of-subsets input)
   (loop for los = list-of-subsets then (cdr los)
         while los
-        for begin = (first los)
-        for end = (second los)
-        for subset = (or (and end (subseq input begin end))
-                         (subseq input begin))
+        for subset = (apply #'subseq input (list (first los) (second los)))
         do (when (run-on-input subset)
              (return subset))))
 

@@ -10,20 +10,21 @@
   (let (buf)
     (with-open-file (stream filename)
       (loop for line = (read-line stream nil 'end)
+            for i = 0 then (1+ i)
             until (eq line 'end)
-            do (push line buf)))
+            do (push (cons line i) buf)))
     (reverse buf)))
 
 ;; (defvar *seen-args* nil)
 ;; (defvar *unique-calls* 0)
 ;; (defvar *duplicate-calls* 0)
 
-(defun add-newlines (list-of-strings)
-  (format nil "~{~a~%~}" list-of-strings))
+(defun annotated-strings->string (list)
+  (format nil "~{~a~%~}" (map 'list #'car list)))
 
 (defun write-input (input)
   (with-open-file (stream "output" :direction :output :if-exists :supersede)
-    (format stream (add-newlines input))))
+    (format stream (annotated-strings->string input))))
 
 (defun run-on-input (input)
   (write-input input)
@@ -67,13 +68,13 @@
                 ;; check if a subset fails
                 (and check-subsets
                      (let ((subset (test-subsets breaks list)))
-                       (and subset (progn (format t "Subset: ~{~a~^, ~}~%" subset) ; Debugging
+                       (and subset (progn (format t "Subset: ~{~a~^, ~}~%" (map 'list #'car subset)) ; Debugging
                                           (ddmin subset 2 t)))))
 
                 ;; check if the complement of a subset fails
                 (let ((complement (test-complements breaks list)))
                   (and complement (progn (format t "Complement with ~a chunks: ~{~a~^, ~}~%"
-                                                 (max (1- parts) 2) complement) ; Debugging
+                                                 (max (1- parts) 2) (map 'list #'car complement)) ; Debugging
                                          (ddmin complement (max (1- parts) 2) nil))))
 
                 ;; check if increasing granularity makes sense

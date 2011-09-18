@@ -19,11 +19,13 @@
 (defun add-newlines (list-of-strings)
   (format nil "~{~a~%~}" list-of-strings))
 
-(defun run-on-input (input)
-  ;; Create temporary file
+(defun write-input (input)
   (with-open-file (stream "output" :direction :output :if-exists :supersede)
-    (format stream (add-newlines input)))
-  ;; Run test program on the temporary file
+    (format stream (add-newlines input))))
+
+(defun run-on-input (input)
+  (write-input input)
+;  (format t "Calling program with args: ~a~%" input)
 ;  (if (member input *seen-args* :test #'equal)
 ;      (progn
 ;        (incf *duplicate-calls*)
@@ -80,6 +82,6 @@
     (ddmin input 2 t)))
 
 (defun delta-file (filename)
-  (delta (read-input filename))
+  (write-input (delta (read-input filename)))
 ;  (format t "unique: ~a, duplicate: ~a~%" *unique-calls* *duplicate-calls*)
 )

@@ -12,6 +12,10 @@
             do (push line buf)))
     (reverse buf)))
 
+;; (defvar *seen-args* nil)
+;; (defvar *unique-calls* 0)
+;; (defvar *duplicate-calls* 0)
+
 (defun add-newlines (list-of-strings)
   (format nil "~{~a~%~}" list-of-strings))
 
@@ -20,6 +24,12 @@
   (with-open-file (stream "output" :direction :output :if-exists :supersede)
     (format stream (add-newlines input)))
   ;; Run test program on the temporary file
+;  (if (member input *seen-args* :test #'equal)
+;      (progn
+;        (incf *duplicate-calls*)
+;        (print "DUPL"))
+;      (progn (incf *unique-calls*)
+;             (push input *seen-args*)))
   (= 0 (sb-ext:process-exit-code (sb-ext:run-program "./test.sh" '("output")))))
 
 (defun compute-breaks (length parts)
@@ -70,4 +80,6 @@
     (ddmin input 2 t)))
 
 (defun delta-file (filename)
-  (delta (read-input filename)))
+  (delta (read-input filename))
+;  (format t "unique: ~a, duplicate: ~a~%" *unique-calls* *duplicate-calls*)
+)

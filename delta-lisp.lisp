@@ -47,25 +47,27 @@
                (return complement)))))
 
 (defun delta (input)
-  (labels ((ddmin (list parts)
+  (labels ((ddmin (list parts check-subsets)
              (let ((breaks (compute-breaks (length list) parts)))
                (or
                 ;; check if a subset fails
-                (let ((subset (test-subsets breaks list)))
-                  (and subset (progn (format t "Subset: ~{~a~^, ~}~%" subset) ; Debugging
-                                     (ddmin subset 2))))
+                (and check-subsets
+                     (let ((subset (test-subsets breaks list)))
+                       (and subset (progn (format t "Subset: ~{~a~^, ~}~%" subset) ; Debugging
+                                          (ddmin subset 2 t)))))
 
                 ;; check if the complement of a subset fails
                 (let ((complement (test-complements breaks list)))
-                  (and complement (progn (format t "Complement with ~a chunks: ~{~a~^, ~}~%" (max (1- parts) 2) complement) ; Debugging
-                                         (ddmin complement (max (1- parts) 2)))))
+                  (and complement (progn (format t "Complement with ~a chunks: ~{~a~^, ~}~%"
+                                                 (max (1- parts) 2) complement) ; Debugging
+                                         (ddmin complement (max (1- parts) 2) nil))))
 
                 ;; check if increasing granularity makes sense
-                (and (< parts (length list)) (ddmin list (min (length list) (* 2 parts))))
+                (and (< parts (length list)) (ddmin list (min (length list) (* 2 parts)) t))
 
                 ;; done: found a 1-minimal subset
                 list))))
-    (ddmin input 2)))
+    (ddmin input 2 t)))
 
 (defun delta-file (filename)
   (delta (read-input filename)))

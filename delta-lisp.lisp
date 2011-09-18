@@ -15,9 +15,9 @@
             do (push (cons line i) buf)))
     (reverse buf)))
 
-;; (defvar *seen-args* nil)
-;; (defvar *unique-calls* 0)
-;; (defvar *duplicate-calls* 0)
+(defvar *seen-args* nil)
+(defvar *unique-calls* 0)
+(defvar *duplicate-calls* 0)
 
 (defun annotated-strings->string (list)
   (format nil "~{~a~%~}" (map 'list #'car list)))
@@ -26,16 +26,21 @@
   (with-open-file (stream "output" :direction :output :if-exists :supersede)
     (format stream (annotated-strings->string input))))
 
+(defun extract-indices (input)
+  (map 'list #'cdr input))
+
 (defun run-on-input (input)
-  (write-input input)
-;  (format t "Calling program with args: ~a~%" input)
-;  (if (member input *seen-args* :test #'equal)
-;      (progn
-;        (incf *duplicate-calls*)
-;        (print "DUPL"))
-;      (progn (incf *unique-calls*)
-;             (push input *seen-args*)))
-  (= 0 (sb-ext:process-exit-code (sb-ext:run-program "./test.sh" '("output")))))
+  (let ((original-indices (extract-indices input)))
+    (format t "Calling program on original lines: ~a~%" original-indices)
+    ;; TODO: keep that list sorted?
+    (or (and (member original-indices *seen-args* :test #'equal)
+             (incf *duplicate-calls*)
+             nil)
+        (progn
+          (incf *unique-calls*)
+          (push original-indices *seen-args*)
+          (write-input input)
+          (= 0 (sb-ext:process-exit-code (sb-ext:run-program "./test.sh" '("output"))))))))
 
 (defun compute-breaks (length parts)
   (do ((i 0 (1+ i))
@@ -86,5 +91,4 @@
 
 (defun delta-file (filename)
   (write-input (delta (read-input filename)))
-;  (format t "unique: ~a, duplicate: ~a~%" *unique-calls* *duplicate-calls*)
-)
+  (format t "unique: ~a, duplicate: ~a~%" *unique-calls* *duplicate-calls*))

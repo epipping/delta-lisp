@@ -1,11 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-echo CALLED!
-
-grep -q 17 "$1" || exit -1
-grep -q '^9$' "$1" || exit -1
-grep -q 82 "$1" || exit -1
-
-l=$(wc -l "$1" | cut -f 1 -d ' ')
-
-[[ "$l" -ge 8 ]]
+for ((i=1; i<100; ++i)); do
+    [[ $i -eq 3 || $i -eq 7 || $i -eq 93 ]] && continue
+    grep -q '^'$i'$' "$1" || exit -1
+done

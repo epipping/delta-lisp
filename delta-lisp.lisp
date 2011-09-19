@@ -11,7 +11,7 @@
 ;; FIXME: verify that initial version passes.
 
 ;; FIXME: splits by newline at this point already
-(defun read-input (filename)
+(defun file->annotated-strings (filename)
   (let (buf)
     (with-open-file (stream filename)
       (loop for line = (read-line stream nil 'end)
@@ -95,5 +95,5 @@
     (ddmin input 2 t)))
 
 (defun delta-file (filename)
-  (write-input (delta (read-input filename)))
+  (write-input (delta (file->annotated-strings filename)))
   (format t "unique: ~a, duplicate: ~a~%" *unique-calls* *duplicate-calls*))

@@ -53,7 +53,6 @@
        (breaks nil (cons (floor (* i (/ length parts))) breaks)))
       ((>= i parts) (reverse breaks))))
 
-;; FIXME: these two functions share a lot of code
 (defun test-subsets (list-of-subsets input)
   (loop for los = list-of-subsets then (cdr los)
         while los

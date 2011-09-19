@@ -6,7 +6,7 @@
 
 (in-package #:delta-lisp)
 
-;; TODO: parallise run-on-input invocations
+;; TODO: parallelise run-on-input invocations
 
 ;; FIXME: verify that initial version passes.
 

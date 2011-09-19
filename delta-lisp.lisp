@@ -11,6 +11,13 @@
 ;; FIXME: verify that initial version passes.
 
 ;; FIXME: splits by newline at this point already
+
+(defvar *seen-args* nil)
+
+;; Debugging
+(defvar *unique-calls* 0)
+(defvar *duplicate-calls* 0)
+
 (defun file->annotated-strings (filename)
   (let (buf)
     (with-open-file (stream filename)
@@ -19,10 +26,6 @@
             until (eq line 'end)
             do (push (cons line i) buf)))
     (reverse buf)))
-
-(defvar *seen-args* nil)
-(defvar *unique-calls* 0)
-(defvar *duplicate-calls* 0)
 
 (defun annotated-strings->string (list)
   (format nil "~{~a~%~}" (map 'list #'car list)))

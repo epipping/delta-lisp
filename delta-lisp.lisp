@@ -31,7 +31,6 @@
 (defun run-on-input (input)
   (let ((original-indices (extract-indices input)))
     (format t "Calling program on original lines: ~a~%" original-indices)
-    ;; TODO: keep that list sorted?
     (or (and (member original-indices *seen-args* :test #'equal)
              (incf *duplicate-calls*)
              nil)

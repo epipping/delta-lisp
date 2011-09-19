@@ -1,0 +1,4 @@
+Rewrite of delta[1] which is based on the ddmin algorithm described in [2].
+
+[1] http://delta.tigris.org/
+[2] http://www.st.cs.uni-saarland.de/papers/tse2002/

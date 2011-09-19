@@ -2,7 +2,6 @@
 
 ;; TODO: parallise run-on-input invocations
 
-;; FIXME: Do caching
 ;; FIXME: verify that initial version passes.
 
 ;; FIXME: splits by newline at this point already

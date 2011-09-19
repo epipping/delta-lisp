@@ -1,5 +1,11 @@
 ;; -*- mode:common-lisp; indent-tabs-mode: nil -*-
 
+(defpackage #:delta-lisp
+  (:export #:delta-file)
+  (:use #:cl #:external-program))
+
+(in-package #:delta-lisp)
+
 ;; TODO: parallise run-on-input invocations
 
 ;; FIXME: verify that initial version passes.
@@ -38,7 +44,9 @@
           (incf *unique-calls*)
           (push original-indices *seen-args*)
           (write-input input)
-          (= 0 (sb-ext:process-exit-code (sb-ext:run-program "./test.sh" '("output"))))))))
+          (multiple-value-bind (status return-code) (external-program:run "./test.sh" '("output"))
+            (declare (ignore status))
+            (= 0 return-code))))))
 
 (defun compute-breaks (length parts)
   (do ((i 0 (1+ i))

@@ -1,7 +1,7 @@
-check:
+benchmark:
 	@time delta -test=./test.sh ./input >/dev/null
-	@sbcl --no-sysinit --no-userinit \
-	 --eval '(load "delta-lisp.lisp")' \
-	 --eval '(time (delta-file "input"))' \
-	 --eval '(quit)' \
-	| grep 'of real time'
+	@sbcl \
+	 --eval '(ql:quickload "delta-lisp")' \
+	 --eval '(time (delta-lisp:delta-file "input"))' \
+	 --eval '(quit)' | grep 'of real time'
+	@rm -rf tmp0

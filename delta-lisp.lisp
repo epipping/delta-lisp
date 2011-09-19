@@ -27,7 +27,7 @@
 (defun annotated-strings->string (list)
   (format nil "~{~a~%~}" (map 'list #'car list)))
 
-(defun write-input (input)
+(defun annotated-strings->file (input)
   (with-open-file (stream "output" :direction :output :if-exists :supersede)
     (format stream (annotated-strings->string input))))
 
@@ -43,7 +43,7 @@
         (progn
           (incf *unique-calls*)
           (push original-indices *seen-args*)
-          (write-input input)
+          (annotated-strings->file input)
           (multiple-value-bind (status return-code) (external-program:run "./test.sh" '("output"))
             (declare (ignore status))
             (= 0 return-code))))))
@@ -95,5 +95,5 @@
     (ddmin input 2 t)))
 
 (defun delta-file (filename)
-  (write-input (delta (file->annotated-strings filename)))
+  (annotated-strings->file (delta (file->annotated-strings filename)))
   (format t "unique: ~a, duplicate: ~a~%" *unique-calls* *duplicate-calls*))

@@ -32,7 +32,7 @@
 
 (defun annotated-strings->file (input)
   (with-open-file (stream "output" :direction :output :if-exists :supersede)
-    (format stream (annotated-strings->string input))))
+    (format stream "~a" (annotated-strings->string input))))
 
 (defun extract-indices (input)
   (map 'list #'cdr input))

@@ -74,7 +74,7 @@
                 ;; check if the complement of a subset fails
                 (let ((complement (test-complements breaks list)))
                   (and complement (progn (format t "Complement with ~a chunks: ~{~a~^, ~}~%"
-                                                 (max (1- parts) 2) (map 'list #'car complement)) ; Debugging
+                                                 (max (1- parts) 2) (map 'list #'cdr complement)) ; Debugging
                                          (ddmin complement (max (1- parts) 2) nil))))
 
                 ;; check if increasing granularity makes sense

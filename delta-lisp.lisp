@@ -56,15 +56,8 @@
        (breaks nil (cons (floor (* i (/ length parts))) breaks)))
       ((>= i parts) (reverse breaks))))
 
-(defun test-subsets (list-of-subsets input)
-  (loop for los = list-of-subsets then (cdr los)
-        while los
-        for subset = (apply #'subseq input (list (first los) (second los)))
-        do (when (run-on-input subset)
-             (return subset))))
-
 (defun test-complements (list-of-subsets input)
-  (when (cddr list-of-subsets) ; Minor optimization as long as there is no caching
+  (when list-of-subsets
     (loop for los = list-of-subsets then (cdr los)
           while los
           for begin = (first los)
@@ -78,12 +71,6 @@
   (labels ((ddmin (list parts check-subsets)
              (let ((breaks (compute-breaks (length list) parts)))
                (or
-                ;; check if a subset fails
-                (and check-subsets
-                     (let ((subset (test-subsets breaks list)))
-                       (and subset (progn (format t "Subset: ~{~a~^, ~}~%" (map 'list #'car subset)) ; Debugging
-                                          (ddmin subset 2 t)))))
-
                 ;; check if the complement of a subset fails
                 (let ((complement (test-complements breaks list)))
                   (and complement (progn (format t "Complement with ~a chunks: ~{~a~^, ~}~%"

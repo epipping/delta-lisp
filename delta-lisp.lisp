@@ -39,7 +39,6 @@
 
 (defun run-on-input (input)
   (let ((original-indices (extract-indices input)))
-    (format t "Calling program on original lines: ~a~%" original-indices)
     (or (and (member original-indices *seen-args* :test #'equal)
              (incf *duplicate-calls*)
              nil)
@@ -65,6 +64,7 @@
           for complement = (append (subseq input 0 begin)
                                    (and end (subseq input end)))
           do (when (run-on-input complement)
+               (format t "Success with ~a lines~%" (length complement))
                (return complement)))))
 
 (defun delta (input)
@@ -73,9 +73,7 @@
                (or
                 ;; check if the complement of a subset fails
                 (let ((complement (test-complements breaks list)))
-                  (and complement (progn (format t "Complement with ~a chunks: ~{~a~^, ~}~%"
-                                                 (max (1- parts) 2) (map 'list #'cdr complement)) ; Debugging
-                                         (ddmin complement (max (1- parts) 2) nil))))
+                  (and complement (ddmin complement (max (1- parts) 2) nil)))
 
                 ;; check if increasing granularity makes sense
                 (and (< parts (length list)) (ddmin list (min (length list) (* 2 parts)) t))

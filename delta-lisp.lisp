@@ -2,7 +2,7 @@
 
 (defpackage #:delta-lisp
   (:export #:delta-file)
-  (:use #:cl #:external-program))
+  (:use #:cl))
 
 (in-package #:delta-lisp)
 

@@ -54,11 +54,11 @@
 (defun test-complements (parts input)
   (loop for i = 0 then (1+ i) until (>= i parts)
         ;; FIXME: (length input) is recomputed
-        ;; FIXME: the break is computed twice
-        for begin = (compute-break (length input) i parts)
-        for end = (compute-break (length input) (1+ i) parts)
-        for complement = (append (subseq input 0 begin)
-                                 (and end (subseq input end)))
+        for breaks = (cons (compute-break (length input) 0 parts)
+                           (compute-break (length input) 1 parts))
+          then (cons (cdr breaks) (compute-break (length input) (1+ i) parts))
+        for complement = (append (subseq input 0 (car breaks))
+                                 (subseq input (cdr breaks)))
         do (when (run-on-input complement)
              (format t "Reduced to ~a lines~%" (length complement))
              (osicat-posix:rename "output" "output-minimal")

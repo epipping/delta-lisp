@@ -48,16 +48,15 @@
             (declare (ignore status))
             (= 0 return-code))))))
 
-(defun compute-breaks (length parts)
-  (do ((i 0 (1+ i))
-       (breaks nil (cons (floor (* i (/ length parts))) breaks)))
-      ((>= i parts) (reverse breaks))))
+(defun compute-break (length part parts)
+  (floor (* part (/ length parts))))
 
-(defun test-complements (list-of-subsets input)
-  (loop for los = list-of-subsets then (cdr los)
-        while los
-        for begin = (first los)
-        for end = (second los)
+(defun test-complements (parts input)
+  (loop for i = 0 then (1+ i) until (>= i parts)
+        ;; FIXME: (length input) is recomputed
+        ;; FIXME: the break is computed twice
+        for begin = (compute-break (length input) i parts)
+        for end = (compute-break (length input) (1+ i) parts)
         for complement = (append (subseq input 0 begin)
                                  (and end (subseq input end)))
         do (when (run-on-input complement)
@@ -70,10 +69,10 @@
       (format t "Starting with ~a lines~%" (length input))
       (error "Initial input does not satisfy the predicate"))
   (labels ((ddmin (list parts check-subsets)
-             (let ((breaks (compute-breaks (length list) parts)))
+             (let ()
                (or
                 ;; check if the complement of a subset fails
-                (let ((complement (test-complements breaks list)))
+                (let ((complement (test-complements parts list)))
                   (and complement (ddmin complement (max (1- parts) 2) nil)))
 
                 ;; check if increasing granularity makes sense

@@ -17,13 +17,11 @@
 (defvar *duplicate-calls* 0)
 
 (defun file->annotated-strings (filename)
-  (let (buf)
-    (with-open-file (stream filename)
-      (loop for line = (read-line stream nil 'end)
-            for i = 0 then (1+ i)
-            until (eq line 'end)
-            do (push (cons line i) buf)))
-    (reverse buf)))
+  (with-open-file (stream filename)
+    (loop for line = (read-line stream nil 'end)
+          for i = 0 then (1+ i)
+          until (eq line 'end)
+          collect (cons line i))))
 
 (defun annotated-strings->string (list)
   (format nil "~{~a~%~}" (map 'list #'car list)))

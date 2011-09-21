@@ -53,33 +53,32 @@
 
 (defun test-complements (parts input)
   (let ((len (length input)))
-  (loop for i = 0 then (1+ i) until (>= i parts)
-        for breaks = (cons (compute-break len 0 parts)
-                           (compute-break len 1 parts))
-          then (cons (cdr breaks) (compute-break len (1+ i) parts))
-        for complement = (append (subseq input 0 (car breaks))
-                                 (subseq input (cdr breaks)))
-        do (when (run-on-input complement)
-             (format t "Reduced to ~a lines~%" (length complement))
-             (osicat-posix:rename "output" "output-minimal")
-             (return complement)))))
+    (loop for i = 0 then (1+ i) until (>= i parts)
+          for breaks = (cons (compute-break len 0 parts)
+                             (compute-break len 1 parts))
+            then (cons (cdr breaks) (compute-break len (1+ i) parts))
+          for complement = (append (subseq input 0 (car breaks))
+                                   (subseq input (cdr breaks)))
+          do (when (run-on-input complement)
+               (format t "Reduced to ~a lines~%" (length complement))
+               (osicat-posix:rename "output" "output-minimal")
+               (return complement)))))
 
 (defun delta (input)
   (if (run-on-input input)
       (format t "Starting with ~a lines~%" (length input))
       (error "Initial input does not satisfy the predicate"))
   (labels ((ddmin (list parts check-subsets)
-             (let ()
-               (or
+             (or
                 ;; check if the complement of a subset fails
-                (let ((complement (test-complements parts list)))
-                  (and complement (ddmin complement (max (1- parts) 2) nil)))
+              (let ((complement (test-complements parts list)))
+                (and complement (ddmin complement (max (1- parts) 2) nil)))
 
-                ;; check if increasing granularity makes sense
-                (and (< parts (length list)) (ddmin list (min (length list) (* 2 parts)) t))
+              ;; check if increasing granularity makes sense
+              (and (< parts (length list)) (ddmin list (min (length list) (* 2 parts)) t))
 
-                ;; done: found a 1-minimal subset
-                list))))
+              ;; done: found a 1-minimal subset
+              list)))
     (ddmin input 2 t)))
 
 (defun delta-file (filename)

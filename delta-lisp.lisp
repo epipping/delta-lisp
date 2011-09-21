@@ -63,6 +63,7 @@
                                    (and end (subseq input end)))
           do (when (run-on-input complement)
                (format t "Reduced to ~a lines~%" (length complement))
+               (osicat-posix:rename "output" "output-minimal")
                (return complement)))))
 
 (defun delta (input)

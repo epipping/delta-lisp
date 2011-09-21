@@ -54,17 +54,16 @@
       ((>= i parts) (reverse breaks))))
 
 (defun test-complements (list-of-subsets input)
-  (when list-of-subsets
-    (loop for los = list-of-subsets then (cdr los)
-          while los
-          for begin = (first los)
-          for end = (second los)
-          for complement = (append (subseq input 0 begin)
-                                   (and end (subseq input end)))
-          do (when (run-on-input complement)
-               (format t "Reduced to ~a lines~%" (length complement))
-               (osicat-posix:rename "output" "output-minimal")
-               (return complement)))))
+  (loop for los = list-of-subsets then (cdr los)
+        while los
+        for begin = (first los)
+        for end = (second los)
+        for complement = (append (subseq input 0 begin)
+                                 (and end (subseq input end)))
+        do (when (run-on-input complement)
+             (format t "Reduced to ~a lines~%" (length complement))
+             (osicat-posix:rename "output" "output-minimal")
+             (return complement))))
 
 (defun delta (input)
   (if (run-on-input input)

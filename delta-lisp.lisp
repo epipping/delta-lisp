@@ -62,7 +62,7 @@
           for complement = (append (subseq input 0 begin)
                                    (and end (subseq input end)))
           do (when (run-on-input complement)
-               (format t "Success with ~a lines~%" (length complement))
+               (format t "Reduced to ~a lines~%" (length complement))
                (return complement)))))
 
 (defun delta (input)

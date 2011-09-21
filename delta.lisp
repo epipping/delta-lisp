@@ -1,10 +1,10 @@
 ;; -*- mode:common-lisp; indent-tabs-mode: nil -*-
 
-(defpackage #:delta-lisp
+(defpackage #:delta
   (:export #:delta-file)
   (:use #:cl))
 
-(in-package #:delta-lisp)
+(in-package #:delta)
 
 ;; TODO: parallelise run-on-input invocations
 

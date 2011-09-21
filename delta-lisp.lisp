@@ -8,8 +8,6 @@
 
 ;; TODO: parallelise run-on-input invocations
 
-;; FIXME: verify that initial version passes.
-
 ;; FIXME: splits by newline at this point already
 
 (defvar *seen-args* nil)
@@ -68,6 +66,9 @@
                (return complement)))))
 
 (defun delta (input)
+  (if (run-on-input input)
+      (format t "Starting with ~a lines~%" (length input))
+      (error "Initial input does not satisfy the predicate"))
   (labels ((ddmin (list parts check-subsets)
              (let ((breaks (compute-breaks (length list) parts)))
                (or

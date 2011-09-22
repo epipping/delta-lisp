@@ -10,53 +10,24 @@
 
 ;; FIXME: splits by newline at this point already
 
-(defvar *seen-args* nil)
-
-;; Debugging
-(defvar *unique-calls* 0)
-(defvar *duplicate-calls* 0)
-
-(defun file->annotated-strings (filename)
+(defun file->strings (filename)
   (with-open-file (stream filename)
     (loop for line = (read-line stream nil 'end)
-          for i = 0 then (1+ i)
           until (eq line 'end)
-          collect (cons line i))))
+          collect line)))
 
-(defun write-annotated-strings (list stream)
-  (format stream "~{~a~%~}" (map 'list #'car list)))
+(defun write-strings (list stream)
+  (format stream "~{~a~%~}" list))
 
-(defun annotated-strings->file (input)
+(defun strings->file (input)
   (with-open-file (stream "output" :direction :output :if-exists :supersede)
-    (write-annotated-strings input stream)))
-
-(defun extract-indices (input)
-  (map 'list #'cdr input))
-
-(defun intervals-reversed (list)
-  (labels ((intervals-helper (ls intervals)
-             (let ((current-interval (car intervals)))
-               (cond ((null ls) intervals)
-                     ((and current-interval (= (cdr current-interval) (car ls)))
-                      (intervals-helper (cdr ls) (cons (cons (car current-interval)
-                                                             (1+ (cdr current-interval)))
-                                                       (cdr intervals))))
-                     (t (intervals-helper (cdr ls) (cons (cons (car ls)
-                                                               (1+ (car ls)))
-                                                         intervals)))))))
-    (intervals-helper list nil)))
+    (write-strings input stream)))
 
 (defun run-on-input (input)
-  (let ((original-intervals (intervals-reversed (extract-indices input))))
-    (cond ((member original-intervals *seen-args* :test #'equal)
-           (incf *duplicate-calls*)
-           nil)
-          (t (incf *unique-calls*)
-             (push original-intervals *seen-args*)
-             (annotated-strings->file input)
-             (multiple-value-bind (status return-code) (external-program:run "./test.sh" '("output"))
-               (declare (ignore status))
-               (= 0 return-code))))))
+  (strings->file input)
+  (multiple-value-bind (status return-code) (external-program:run "./test.sh" '("output"))
+    (declare (ignore status))
+    (= 0 return-code)))
 
 (defun compute-break (length part parts)
   (floor (* part (/ length parts))))
@@ -88,5 +59,4 @@
     (ddmin input 2 t)))
 
 (defun delta-file (filename)
-  (annotated-strings->file (delta (file->annotated-strings filename)))
-  (format t "unique: ~a, duplicate: ~a~%" *unique-calls* *duplicate-calls*))
+  (strings->file (delta (file->strings filename))))

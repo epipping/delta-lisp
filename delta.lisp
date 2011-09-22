@@ -34,7 +34,7 @@
 
 (defun test-complements (parts input)
   (let ((len (length input)))
-    (loop for i = 0 then (1+ i) until (>= i parts)
+    (loop for i from 0 below parts
           for breaks = (cons (compute-break len 0 parts)
                              (compute-break len 1 parts))
             then (cons (cdr breaks) (compute-break len (1+ i) parts))

@@ -48,16 +48,15 @@
 
 (defun run-on-input (input)
   (let ((original-intervals (intervals-reversed (extract-indices input))))
-    (or (and (member original-intervals *seen-args* :test #'equal)
-             (incf *duplicate-calls*)
-             nil)
-        (progn
-          (incf *unique-calls*)
-          (push original-intervals *seen-args*)
-          (annotated-strings->file input)
-          (multiple-value-bind (status return-code) (external-program:run "./test.sh" '("output"))
-            (declare (ignore status))
-            (= 0 return-code))))))
+    (cond ((member original-intervals *seen-args* :test #'equal)
+           (incf *duplicate-calls*)
+           nil)
+          (t (incf *unique-calls*)
+             (push original-intervals *seen-args*)
+             (annotated-strings->file input)
+             (multiple-value-bind (status return-code) (external-program:run "./test.sh" '("output"))
+               (declare (ignore status))
+               (= 0 return-code))))))
 
 (defun compute-break (length part parts)
   (floor (* part (/ length parts))))
@@ -80,16 +79,12 @@
       (format t "Starting with ~a lines~%" (length input))
       (error "Initial input does not satisfy the predicate"))
   (labels ((ddmin (list parts check-subsets)
-             (or
-                ;; check if the complement of a subset fails
-              (let ((complement (test-complements parts list)))
-                (and complement (ddmin complement (max (1- parts) 2) nil)))
-
-              ;; check if increasing granularity makes sense
-              (and (< parts (length list)) (ddmin list (min (length list) (* 2 parts)) t))
-
-              ;; done: found a 1-minimal subset
-              list)))
+             (let ((complement (test-complements parts list)))
+               (cond (complement (ddmin complement (max (1- parts) 2) nil))
+                     ;; check if increasing granularity makes sense
+                     ((< parts (length list)) (ddmin list (min (length list) (* 2 parts)) t))
+                     ;; done: found a 1-minimal subset
+                     (t list)))))
     (ddmin input 2 t)))
 
 (defun delta-file (filename)

@@ -23,12 +23,12 @@
           until (eq line 'end)
           collect (cons line i))))
 
-(defun annotated-strings->string (list)
-  (format nil "~{~a~%~}" (map 'list #'car list)))
+(defun write-annotated-strings (list stream)
+  (format stream "~{~a~%~}" (map 'list #'car list)))
 
 (defun annotated-strings->file (input)
   (with-open-file (stream "output" :direction :output :if-exists :supersede)
-    (format stream "~a" (annotated-strings->string input))))
+    (write-annotated-strings input stream)))
 
 (defun extract-indices (input)
   (map 'list #'cdr input))

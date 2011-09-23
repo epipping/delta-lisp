@@ -8,13 +8,12 @@
 
 ;; TODO: parallelise run-on-input invocations
 
-;; FIXME: splits by newline at this point already
-
 (defvar *file-contents* (make-array 0 :adjustable t :fill-pointer 0))
 (defvar *number-of-lines* 0)
 
 (defun read-file (filename)
   (with-open-file (stream filename)
+    ;; FIXME: splits by newline at this point already
     (loop for line = (read-line stream nil 'end)
           until (eq line 'end)
           do (vector-push-extend line *file-contents*)))

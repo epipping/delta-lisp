@@ -45,17 +45,17 @@
                (return complement)))))
 
 (defun delta (input)
-  (labels ((ddmin (list parts check-subsets)
+  (labels ((ddmin (list parts)
              (let ((complement (test-complements parts list)))
-               (cond (complement (ddmin complement (max (1- parts) 2) nil))
+               (cond (complement (ddmin complement (max (1- parts) 2)))
                      ;; check if increasing granularity makes sense
-                     ((< parts (length list)) (ddmin list (min (length list) (* 2 parts)) t))
+                     ((< parts (length list)) (ddmin list (min (length list) (* 2 parts))))
                      ;; done: found a 1-minimal subset
                      (t list)))))
     (if (run-on-input input)
         (format t "Starting with ~a lines~%" (length input))
         (error "Initial input does not satisfy the predicate"))
-    (ddmin input 2 t)))
+    (ddmin input 2)))
 
 (defun delta-file (filename)
   (strings->file (delta (file->strings filename))))

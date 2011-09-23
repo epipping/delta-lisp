@@ -38,29 +38,28 @@
 (defun compute-break (length part parts)
   (floor (* part (/ length parts))))
 
-(defun test-complements (parts input)
-  (let ((len (loop for x across input summing x)))
-    (loop for i from 0 below parts
-          for begin = (compute-break len i parts) then end
-          and end = (compute-break len (1+ i) parts)
-          for length-removed = (- end begin)
-          for old-offset = 0 then new-offset
-          for new-offset = (loop for index from old-offset
-                                 with index-without-zeroes = begin
-                                 until (= index-without-zeroes end)
-                                 do (when (= 1 (aref input index))
-                                      (incf index-without-zeroes))
-                                 finally (return index))
-          for complement = (copy-seq input)
-          do (fill complement 0 :start old-offset :end new-offset)
-          do (when (run-on-indices complement)
-               (format t "Reduced to ~a lines~%" (- len length-removed))
-               (osicat-posix:rename "output" "output-minimal")
-               (return (values complement (- len length-removed)))))))
+(defun test-complements (parts input len)
+  (loop for i from 0 below parts
+        for begin = (compute-break len i parts) then end
+        and end = (compute-break len (1+ i) parts)
+        for length-removed = (- end begin)
+        for old-offset = 0 then new-offset
+        for new-offset = (loop for index from old-offset
+                               with index-without-zeroes = begin
+                               until (= index-without-zeroes end)
+                               do (when (= 1 (aref input index))
+                                    (incf index-without-zeroes))
+                               finally (return index))
+        for complement = (copy-seq input)
+        do (fill complement 0 :start old-offset :end new-offset)
+        do (when (run-on-indices complement)
+             (format t "Reduced to ~a lines~%" (- len length-removed))
+             (osicat-posix:rename "output" "output-minimal")
+             (return (values complement (- len length-removed))))))
 
 (defun delta (input)
   (labels ((ddmin (list parts old-length)
-             (multiple-value-bind (complement new-length) (test-complements parts list)
+             (multiple-value-bind (complement new-length) (test-complements parts list old-length)
                (cond (complement (ddmin complement (max (1- parts) 2) new-length))
                      ;; check if increasing granularity makes sense
                      ((< parts old-length) (ddmin list (min old-length (* 2 parts)) old-length))

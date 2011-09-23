@@ -6,7 +6,7 @@
 
 (in-package #:delta)
 
-;; TODO: parallelise run-on-input invocations
+;; TODO: parallelise run-on-indices invocations
 
 (defvar *file-contents* (make-array 0 :adjustable t :fill-pointer 0))
 (defvar *number-of-lines* 0)
@@ -46,10 +46,10 @@ byte-vector `indices` to the file \"output\"."
 `length` is divided into `parts`-many chunks of (roughly) equal size."
   (floor (* part (/ length parts))))
 
-(defun test-complements (parts input len script-name)
-  "Check if removing certain subsets of `input` yields a reduction.
+(defun test-complements (parts indices len script-name)
+  "Check if removing certain subsets of `indices` yields a reduction.
 
-The parameter `input` should be a subset of `*file-contents*`,
+The parameter `indices` should be a subset of `*file-contents*`,
 represented through a bit-vector. The subset will be divided into
 `parts`-many chunks of (roughly) equal size; for eac chunk, its
 complement with respect to the subset will be tested. The first one
@@ -67,20 +67,20 @@ If no chunk passes, nil is returned."
         for new-offset = (loop for index from old-offset
                                with index-without-zeroes = begin
                                until (= index-without-zeroes end)
-                               do (when (= 1 (aref input index))
+                               do (when (= 1 (aref indices index))
                                     (incf index-without-zeroes))
                                finally (return index))
-        ;; Create a copy of the bit-vector `input` and remove a chunk
-        for complement = (copy-seq input)
+        ;; Create a copy of the bit-vector `indices` and remove a chunk
+        for complement = (copy-seq indices)
         do (fill complement 0 :start old-offset :end new-offset)
         do (when (run-on-indices complement script-name)
              (format t "Reduced to ~a lines~%" (- len length-removed))
              (osicat-posix:rename "output" "output-minimal")
              (return (values complement (- len length-removed))))))
 
-(defun delta (input script-name)
+(defun delta (indices script-name)
   "Minimise a subset of `*file-contents*` represented by the
-bit-vector `input` under the constraint that `script-name` returns 0
+bit-vector `indices` under the constraint that `script-name` returns 0
 when a file consisting of that subset is passed as its sole argument."
   (labels ((ddmin (list parts old-length)
              (multiple-value-bind (complement new-length) (test-complements parts list old-length script-name)
@@ -89,10 +89,10 @@ when a file consisting of that subset is passed as its sole argument."
                      ((< parts old-length) (ddmin list (min old-length (* 2 parts)) old-length))
                      ;; done: found a 1-minimal subset
                      (t list)))))
-    (if (run-on-indices input script-name)
+    (if (run-on-indices indices script-name)
         (format t "Starting with ~a lines~%" *number-of-lines*)
         (error "Initial input does not satisfy the predicate"))
-    (ddmin input 2 *number-of-lines*)))
+    (ddmin indices 2 *number-of-lines*)))
 
 (defun delta-file (filename script-name)
   "Minimise the file given by `filename` under the constraint that

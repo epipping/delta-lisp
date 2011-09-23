@@ -28,16 +28,16 @@
   (with-open-file (stream "output" :direction :output :if-exists :supersede)
     (write-from-indices indices stream)))
 
-(defun run-on-indices (indices)
+(defun run-on-indices (indices script-name)
   (indices->file indices)
-  (multiple-value-bind (status return-code) (external-program:run "./test.sh" '("output"))
+  (multiple-value-bind (status return-code) (external-program:run script-name '("output"))
     (declare (ignore status))
     (= 0 return-code)))
 
 (defun compute-break (length part parts)
   (floor (* part (/ length parts))))
 
-(defun test-complements (parts input len)
+(defun test-complements (parts input len script-name)
   (loop for i from 0 below parts
         for begin = (compute-break len i parts) then end
         and end = (compute-break len (1+ i) parts)
@@ -51,25 +51,26 @@
                                finally (return index))
         for complement = (copy-seq input)
         do (fill complement 0 :start old-offset :end new-offset)
-        do (when (run-on-indices complement)
+        do (when (run-on-indices complement script-name)
              (format t "Reduced to ~a lines~%" (- len length-removed))
              (osicat-posix:rename "output" "output-minimal")
              (return (values complement (- len length-removed))))))
 
-(defun delta (input)
+(defun delta (input script-name)
   (labels ((ddmin (list parts old-length)
-             (multiple-value-bind (complement new-length) (test-complements parts list old-length)
+             (multiple-value-bind (complement new-length) (test-complements parts list old-length script-name)
                (cond (complement (ddmin complement (max (1- parts) 2) new-length))
                      ;; check if increasing granularity makes sense
                      ((< parts old-length) (ddmin list (min old-length (* 2 parts)) old-length))
                      ;; done: found a 1-minimal subset
                      (t list)))))
-    (if (run-on-indices input)
+    (if (run-on-indices input script-name)
         (format t "Starting with ~a lines~%" *number-of-lines*)
         (error "Initial input does not satisfy the predicate"))
     (ddmin input 2 *number-of-lines*)))
 
-(defun delta-file (filename)
+(defun delta-file (filename script-name)
   (read-file filename)
   (indices->file (delta (make-array *number-of-lines* :element-type 'bit
-                                                      :initial-element 1))))
+                                                      :initial-element 1)
+                        script-name)))

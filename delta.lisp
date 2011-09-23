@@ -10,21 +10,24 @@
 
 ;; FIXME: splits by newline at this point already
 
-(defun file->strings (filename)
+(defvar *file-contents* (make-array 1 :adjustable t :fill-pointer 0))
+
+(defun read-file (filename)
   (with-open-file (stream filename)
     (loop for line = (read-line stream nil 'end)
           until (eq line 'end)
-          collect line)))
+          do (vector-push-extend line *file-contents*))))
 
-(defun write-strings (list stream)
-  (format stream "~{~a~%~}" list))
+(defun write-from-indices (indices stream)
+  (loop for i in indices
+        do (format stream "~a~%" (aref *file-contents* i))))
 
-(defun strings->file (input)
+(defun indices->file (indices)
   (with-open-file (stream "output" :direction :output :if-exists :supersede)
-    (write-strings input stream)))
+    (write-from-indices indices stream)))
 
-(defun run-on-input (input)
-  (strings->file input)
+(defun run-on-indices (indices)
+  (indices->file indices)
   (multiple-value-bind (status return-code) (external-program:run "./test.sh" '("output"))
     (declare (ignore status))
     (= 0 return-code)))
@@ -39,7 +42,7 @@
           and end = (compute-break len (1+ i) parts)
           for complement = (append (subseq input 0 begin)
                                    (subseq input end))
-          do (when (run-on-input complement)
+          do (when (run-on-indices complement)
                (format t "Reduced to ~a lines~%" (length complement))
                (osicat-posix:rename "output" "output-minimal")
                (return complement)))))
@@ -52,10 +55,12 @@
                      ((< parts (length list)) (ddmin list (min (length list) (* 2 parts))))
                      ;; done: found a 1-minimal subset
                      (t list)))))
-    (if (run-on-input input)
+    (if (run-on-indices input)
         (format t "Starting with ~a lines~%" (length input))
         (error "Initial input does not satisfy the predicate"))
     (ddmin input 2)))
 
 (defun delta-file (filename)
-  (strings->file (delta (file->strings filename))))
+  (read-file filename)
+  (indices->file (delta (loop for i from 0 below (length *file-contents*)
+                              collect i))))

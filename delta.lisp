@@ -35,11 +35,10 @@
 (defun test-complements (parts input)
   (let ((len (length input)))
     (loop for i from 0 below parts
-          for breaks = (cons (compute-break len 0 parts)
-                             (compute-break len 1 parts))
-            then (cons (cdr breaks) (compute-break len (1+ i) parts))
-          for complement = (append (subseq input 0 (car breaks))
-                                   (subseq input (cdr breaks)))
+          for begin = (compute-break len i parts) then end
+          and end = (compute-break len (1+ i) parts)
+          for complement = (append (subseq input 0 begin)
+                                   (subseq input end))
           do (when (run-on-input complement)
                (format t "Reduced to ~a lines~%" (length complement))
                (osicat-posix:rename "output" "output-minimal")

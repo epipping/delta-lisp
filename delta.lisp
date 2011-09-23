@@ -101,7 +101,7 @@ resulting file as its sole argument.
 
 If `filename` can be reduced, a file will be created by the name
 \"output-minimal\". The solution will not in general be a global
-minimum. It will satisfy the condition of 1-minimility, i.e. that
+minimum. It will satisfy the condition of 1-minimility, i.e. that no
 different solution can be found by removing a single line."
   (read-file filename)
   (indices->file (delta (make-array *number-of-lines* :element-type 'bit

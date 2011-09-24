@@ -12,7 +12,7 @@ delta-asdf:
 	 --no-userinit \
 	 --eval '(require :asdf)' \
 	 --eval "(asdf:oos 'asdf:load-op :delta)" \
-         --eval '(time (delta:delta-file "input" "./test.sh"))' \
+	 --eval '(time (delta:delta-file "input" "./test.sh"))' \
 	 --eval '(quit)'
 
 clean:

@@ -15,5 +15,11 @@ delta-asdf:
 	 --eval '(time (delta:delta-file "input" "./test.sh"))' \
 	 --eval '(quit)'
 
+delta: delta.o
+	$(CXX) $(LDFLAGS) $^ -o $@
+
+delta-c++: delta
+	@time ./delta input
+
 clean:
 	@rm -rf tmp*

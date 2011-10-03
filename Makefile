@@ -1,13 +1,16 @@
-perl-delta:
+.PHONY:
+run-delta-perl:
 	@delta -test=./test.sh ./input
 
-delta-ql:
+.PHONY:
+run-delta-ql:
 	@sbcl \
 	 --eval '(ql:quickload "delta")' \
 	 --eval '(time (delta:delta-file "input" "./test.sh"))' \
 	 --eval '(quit)'
 
-delta-asdf:
+.PHONY:
+run-delta-asdf:
 	@sbcl \
 	 --no-userinit \
 	 --eval '(require :asdf)' \
@@ -15,11 +18,13 @@ delta-asdf:
 	 --eval '(time (delta:delta-file "input" "./test.sh"))' \
 	 --eval '(quit)'
 
-delta: delta.o
+delta-c++: delta.o
 	$(CXX) $(LDFLAGS) $^ -o $@
 
-delta-c++: delta
-	@time ./delta input
+.PHONY:
+run-delta-c++: delta-c++
+	@time ./delta-c++ input
 
+.PHONY:
 clean:
-	@rm -rf tmp*
+	@rm -rf tmp* delta-c++ *.o

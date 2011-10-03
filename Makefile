@@ -27,8 +27,19 @@ run-delta-c++: delta-c++
 
 .PHONY:
 clean:
-	@rm -rf tmp* delta-c++ *.o
+	@rm -rf tmp* delta-c++ *.o delta-lisp
 
 .PHONY:
 distclean: clean
 	@rm -f output output-minimal
+
+delta-lisp: delta.lisp
+	buildapp \
+	 --load-system delta \
+	 --eval '(defun main (argv) (delta:delta-file (third argv) (second argv)))' \
+	 --entry main \
+	 --output $@
+
+.PHONY:
+run-delta-app: delta-lisp
+	@./delta-lisp ./test.sh input

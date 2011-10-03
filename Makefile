@@ -28,3 +28,7 @@ run-delta-c++: delta-c++
 .PHONY:
 clean:
 	@rm -rf tmp* delta-c++ *.o
+
+.PHONY:
+distclean: clean
+	@rm -f output output-minimal

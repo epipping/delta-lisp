@@ -13,6 +13,8 @@
 std::vector<std::string> file_contents;
 size_t number_of_lines;
 
+std::string test_program;
+
 void
 read_file(char const *filename)
 {
@@ -75,7 +77,7 @@ test_complements(size_t parts,
     left = right;
     right = compute_break(subset.size(), j, parts);
     zero_subset(left, right, subset, complement);
-    if (run_program("./test.sh", complement) == 0) {
+    if (run_program(test_program.c_str(), complement) == 0) {
       assert(0 == rename("output", "output-minimal"));
       reduction = complement;
       return true;
@@ -108,8 +110,9 @@ ddmin(size_t parts,
 int
 main(int argc, char *argv[])
 {
-  assert (argc == 2);
+  assert (argc == 3);
   read_file(argv[1]);
+  test_program = argv[2];
 
   std::vector<std::string> potential_reduction = file_contents;
   ddmin(2, potential_reduction);

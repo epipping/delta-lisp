@@ -1,21 +1,26 @@
+INPUT  ?= ${PWD}/input
+SCRIPT ?= ${PWD}/test.sh
+
 .PHONY:
 run-delta-perl:
-	@delta -test=./test.sh ./input
+	@delta -test=${SCRIPT} ${INPUT}
 
 .PHONY:
 run-delta-ql:
 	@sbcl \
+	 --disable-debugger \
 	 --eval '(ql:quickload "delta")' \
-	 --eval '(time (delta:delta-file "input" "./test.sh"))' \
+	 --eval "(time (delta:delta-file \"${INPUT}\" \"${SCRIPT}\"))" \
 	 --eval '(quit)'
 
 .PHONY:
 run-delta-asdf:
 	@sbcl \
+	 --disable-debugger \
 	 --no-userinit \
 	 --eval '(require :asdf)' \
 	 --eval "(asdf:oos 'asdf:load-op :delta)" \
-	 --eval '(time (delta:delta-file "input" "./test.sh"))' \
+	 --eval "(time (delta:delta-file \"${INPUT}\" \"${SCRIPT}\"))" \
 	 --eval '(quit)'
 
 delta-c++: delta.o
@@ -23,7 +28,7 @@ delta-c++: delta.o
 
 .PHONY:
 run-delta-c++: delta-c++
-	@time ./delta-c++ input
+	@time ./delta-c++ ${INPUT} ${SCRIPT}
 
 .PHONY:
 clean:
@@ -42,4 +47,4 @@ delta-lisp: delta.lisp
 
 .PHONY:
 run-delta-app: delta-lisp
-	@./delta-lisp ./test.sh input
+	@./delta-lisp ${SCRIPT} ${INPUT}

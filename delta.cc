@@ -90,10 +90,8 @@ void
 ddmin(size_t parts,
       std::vector<std::string> &subset)
 {
-  std::vector<std::string> potential_reduction;
   while (true) {
-    if (test_complements(parts, subset, potential_reduction)) {
-      subset = potential_reduction;
+    if (test_complements(parts, subset, subset)) {
       std::cout << "Reduced to " << subset.size() << " lines" << std::endl;
       parts = std::max<size_t>(2, parts - 1);
     } else if (parts < subset.size())

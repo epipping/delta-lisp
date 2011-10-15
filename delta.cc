@@ -86,25 +86,21 @@ test_complements(size_t parts,
   return false;
 }
 
-// TODO: remove recursion
 void
 ddmin(size_t parts,
       std::vector<std::string> &subset)
 {
   std::vector<std::string> potential_reduction;
-  if (test_complements(parts, subset, potential_reduction)) {
-    subset = potential_reduction;
-    size_t const new_parts = std::max<size_t>(2, parts - 1);
-    std::cout << "Reduced to " << subset.size() << " lines" << std::endl;
-    ddmin(new_parts, subset);
-    return;
+  while (true) {
+    if (test_complements(parts, subset, potential_reduction)) {
+      subset = potential_reduction;
+      std::cout << "Reduced to " << subset.size() << " lines" << std::endl;
+      parts = std::max<size_t>(2, parts - 1);
+    } else if (parts < subset.size())
+      parts = std::min(2 * parts, subset.size());
+    else
+      break;
   }
-  if (parts < subset.size()) {
-    size_t const new_parts = std::min(2 * parts, subset.size());
-    ddmin(new_parts, subset);
-    return;
-  }
-  return;
 }
 
 int

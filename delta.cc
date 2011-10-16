@@ -57,7 +57,7 @@ compute_break(size_t length, size_t part, size_t parts)
 
 void
 zero_subset(size_t left, size_t right,
-	    std::vector<std::string> const subset,
+	    std::vector<std::string> const &subset,
 	    std::vector<std::string> &complement)
 {
   complement = subset; // copy
@@ -66,7 +66,7 @@ zero_subset(size_t left, size_t right,
 
 bool
 test_complements(size_t parts,
-		 std::vector<std::string> const subset,
+		 std::vector<std::string> const &subset,
 		 std::vector<std::string> &reduction)
 {
   std::vector<std::string> complement;

@@ -7,7 +7,6 @@
 #include <string>
 #include <vector>
 
-// TODO: check that initial input passes
 // TODO: parallelise test_complements
 
 std::vector<std::string> file_contents;
@@ -109,6 +108,10 @@ main(int argc, char *argv[])
   test_program = argv[2];
 
   std::vector<std::string> potential_reduction = file_contents;
+  if (run_program(test_program.c_str(), potential_reduction) != 0) {
+    std::cerr << "Initial input does not pass the test" << std::endl;
+    return -1;
+  }
   ddmin(2, potential_reduction);
 
   return 0;

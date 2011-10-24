@@ -1,11 +1,11 @@
 INPUT  ?= ${PWD}/input
 SCRIPT ?= ${PWD}/test.sh
 
-.PHONY:
+.PHONY: run-delta-perl
 run-delta-perl:
 	@delta -test=${SCRIPT} ${INPUT}
 
-.PHONY:
+.PHONY: run-delta-ql
 run-delta-ql:
 	@sbcl \
 	 --disable-debugger \
@@ -13,7 +13,7 @@ run-delta-ql:
 	 --eval "(time (delta:delta-file \"${INPUT}\" \"${SCRIPT}\"))" \
 	 --eval '(quit)'
 
-.PHONY:
+.PHONY: run-delta-asdf
 run-delta-asdf:
 	@sbcl \
 	 --disable-debugger \
@@ -26,15 +26,15 @@ run-delta-asdf:
 delta-c++: delta.o
 	$(CXX) $(LDFLAGS) $^ -o $@
 
-.PHONY:
+.PHONY: run-delta-c++
 run-delta-c++: delta-c++
 	@time ./delta-c++ ${INPUT} ${SCRIPT}
 
-.PHONY:
+.PHONY: clean
 clean:
 	@rm -rf tmp* delta-c++ *.o delta-lisp
 
-.PHONY:
+.PHONY: distclean
 distclean: clean
 	@rm -f output output-minimal
 
@@ -45,6 +45,6 @@ delta-lisp: delta.lisp
 	 --entry main \
 	 --output $@
 
-.PHONY:
+.PHONY: run-delta-app
 run-delta-app: delta-lisp
 	@./delta-lisp ${SCRIPT} ${INPUT}

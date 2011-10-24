@@ -4,5 +4,55 @@ The original delta algorithm considers first subsets and then their
 complements. Both this implementation and the one from [1] skip the
 subset step.
 
+There are two implementations, one in common lisp and one in C++.
+
+The C++ version should work with any C++98 compiler but has only been
+tested with g++ and clang++.
+The Common Lisp version should work with any common lisp compiler but
+has only been tested with sbcl.
+
+The C++ version has no external dependencies.
+The Common Lisp version uses
+
+ * osicat: http://common-lisp.net/project/osicat/
+ * external-program: http://common-lisp.net/project/osicat/
+
+Both libraries are available via quicklisp[3].
+
+A sample makefile is provided that allows to switch back and forth
+between multiple implementations of delta for testing purposes, namely
+the two implementations described herein and the one from [1].
+
+In particular, with a shell inside a clone of this repository, as well
+as sbcl and quicklisp installed, one can run
+
+  make run-delta-ql
+
+to compile the delta-lisp tool and use it to reduce the file ./input
+under the constraint that ./test.sh returns zero. The C++ version is
+compiled and run using
+
+  make run-delta-c++
+
+Where delta-lisp and delta-c++ take their input and predicate from can
+be set on the command line or through the makefile variables INPUT and
+SCRIPT.
+
+The makefile is convenient for testing but by no means necessary in
+order to use delta-lisp/c++. Each test consists of a an input file
+named input and a script named test.sh and resides in a separate
+subdirectory.
+
+Please note that tests that rely on bugs in clang and gcc will break
+if a version is used that does not exhibit the expected behaviour for
+whatever reason (e.g. because the bug has been fixed).
+
+The C++ version uses less memory and is a bit faster, maybe because
+the data structures that are used in the Common Lisp implementation
+are suboptimal (they certainly are, but that might not be the reason)
+whereas std::vector is perfect for the task. Patches are welcome.
+
+
 [1] http://delta.tigris.org/
 [2] http://www.st.cs.uni-saarland.de/papers/tse2002/
+[3] http://www.quicklisp.org/

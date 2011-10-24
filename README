@@ -39,8 +39,8 @@ be set on the command line or through the makefile variables INPUT and
 SCRIPT.
 
 The makefile is convenient for testing but by no means necessary in
-order to use delta-lisp/c++. Each test consists of a an input file
-named input and a script named test.sh and resides in a separate
+order to use delta-lisp/c++. Each test consists of an input file named
+input and a script named test.sh and resides in a separate
 subdirectory.
 
 Please note that tests that rely on bugs in clang and gcc will break

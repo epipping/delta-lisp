@@ -1,6 +1,9 @@
 INPUT  ?= ${PWD}/input
 SCRIPT ?= ${PWD}/test.sh
 
+.PHONY: all
+all: delta-c++ delta-lisp
+
 .PHONY: run-delta-perl
 run-delta-perl:
 	@delta -test=${SCRIPT} ${INPUT}

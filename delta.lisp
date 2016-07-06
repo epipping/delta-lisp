@@ -21,20 +21,20 @@ as strings to the array `*file-contents*`."
   (setf *number-of-lines* (length *file-contents*)))
 
 (defun write-from-indices (indices stream)
-  "Write the subset of `*file-contents*` represented by the
-byte-vector `indices` to the stream `stream`."
+  "Write the subset of `*file-contents*` represented by the Boolean
+vector `indices` to the stream `stream`."
   (loop for bit across indices for index from 0 do (when (= 1
         bit) (format stream "~a~%" (aref *file-contents* index)))))
 
 (defun indices->file (indices)
-  "Write the subset of `*file-contents*` represented by the
-byte-vector `indices` to the file \"output\"."
+  "Write the subset of `*file-contents*` represented by the Boolean
+vector `indices` to the file \"output\"."
   (with-open-file (stream "output" :direction :output :if-exists :supersede)
     (write-from-indices indices stream)))
 
 (defun run-on-indices (indices script-name)
   "Run the script given by `script-name` on the subset of
-`*file-contents*` represented by the byte-vector `indices`."
+`*file-contents*` represented by the Boolean vector `indices`."
   (indices->file indices)
   (multiple-value-bind (status return-code) (external-program:run script-name '("output"))
     (declare (ignore status))
@@ -49,7 +49,7 @@ byte-vector `indices` to the file \"output\"."
   "Check if removing certain subsets of `indices` yields a reduction.
 
 The parameter `indices` should be a subset of `*file-contents*`,
-represented through a bit-vector. The subset will be divided into
+represented through a Boolean vector. The subset will be divided into
 `parts`-many chunks of (roughly) equal size; for eac chunk, its
 complement with respect to the subset will be tested. The first one
 that makes `script-name` pass will be returned in conjunction with its
@@ -61,7 +61,7 @@ If no chunk passes, nil is returned."
         for begin = (compute-break len i parts) then end
         and end = (compute-break len (1+ i) parts)
         for length-removed = (- end begin)
-        ;; Relative to the whole bit-vector, where chunk #i begins/ends
+        ;; Relative to the whole Boolean vector, where chunk #i begins/ends
         for old-offset = 0 then new-offset
         for new-offset = (loop for index from old-offset
                                with index-without-zeroes = begin
@@ -69,7 +69,7 @@ If no chunk passes, nil is returned."
                                do (when (= 1 (aref indices index))
                                     (incf index-without-zeroes))
                                finally (return index))
-        ;; Create a copy of the bit-vector `indices` and remove a chunk
+        ;; Create a copy of the Boolean vector `indices` and remove a chunk
         for complement = (copy-seq indices)
         do (fill complement 0 :start old-offset :end new-offset)
         do (when (run-on-indices complement script-name)
@@ -78,8 +78,8 @@ If no chunk passes, nil is returned."
              (return (values complement (- len length-removed))))))
 
 (defun delta (indices script-name)
-  "Minimise a subset of `*file-contents*` represented by the
-bit-vector `indices` under the constraint that `script-name` returns 0
+  "Minimise a subset of `*file-contents*` represented by the Boolean
+vector `indices` under the constraint that `script-name` returns 0
 when a file consisting of that subset is passed as its sole argument."
   (labels ((ddmin (list parts old-length)
              (multiple-value-bind (complement new-length) (test-complements parts list old-length script-name)

@@ -15,7 +15,6 @@
   "Split the file given by `filename` by newline and append the lines
 as strings to the array `*file-contents*`."
   (with-open-file (stream filename)
-    ;; FIXME: splits by newline at this point already
     (loop for line = (read-line stream nil 'end)
           until (eq line 'end)
           do (vector-push-extend line *file-contents*)))

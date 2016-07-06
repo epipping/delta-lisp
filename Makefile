@@ -41,14 +41,3 @@ clean:
 .PHONY: distclean
 distclean: clean
 	@rm -f output output-minimal
-
-delta-lisp: delta.lisp
-	buildapp \
-	 --load-system delta \
-	 --eval '(defun main (argv) (delta:delta-file (third argv) (second argv)))' \
-	 --entry main \
-	 --output $@
-
-.PHONY: run-delta-app
-run-delta-app: delta-lisp
-	@./delta-lisp ${SCRIPT} ${INPUT}

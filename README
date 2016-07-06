@@ -45,10 +45,6 @@ order to use delta-lisp/c++. Each test consists of an input file named
 input and a script named test.sh and resides in a separate
 subdirectory.
 
-Please note that tests that rely on bugs in clang and gcc will break
-if a version is used that does not exhibit the expected behaviour for
-whatever reason (e.g. because the bug has been fixed).
-
 The C++ version uses less memory and is a bit faster, maybe because
 the data structures that are used in the Common Lisp implementation
 are suboptimal (they certainly are, but that might not be the reason)

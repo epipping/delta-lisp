@@ -60,7 +60,7 @@ If no chunk passes, nil is returned."
         ;; Relative to the subset, where chunk #i begins/ends
         for begin = (compute-break len i parts) then end
         and end = (compute-break len (1+ i) parts)
-        for length-removed = (- end begin)
+        for remaining-length = (- len (- end begin))
         ;; Relative to the whole Boolean vector, where chunk #i begins/ends
         for old-offset = 0 then new-offset
         for new-offset = (loop for index from old-offset
@@ -73,9 +73,9 @@ If no chunk passes, nil is returned."
         for complement = (copy-seq indices)
         do (fill complement 0 :start old-offset :end new-offset)
         do (when (run-on-indices complement script-name)
-             (format t "Reduced to ~a lines~%" (- len length-removed))
+             (format t "Reduced to ~a lines~%" remaining-length)
              (osicat-posix:rename "output" "output-minimal")
-             (return (values complement (- len length-removed))))))
+             (return (values complement remaining-length)))))
 
 (defun delta (indices script-name)
   "Minimise a subset of `*file-contents*` represented by the Boolean

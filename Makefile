@@ -12,6 +12,7 @@ run-delta-perl:
 run-delta-ql:
 	@sbcl \
 	 --disable-debugger \
+	 --eval '(push (uiop:ensure-absolute-pathname *default-pathname-defaults*) asdf:*central-registry*)' \
 	 --eval '(ql:quickload "delta")' \
 	 --eval "(time (delta:delta-file \"${INPUT}\" \"${SCRIPT}\"))" \
 	 --eval '(quit)'
@@ -20,9 +21,9 @@ run-delta-ql:
 run-delta-asdf:
 	@sbcl \
 	 --disable-debugger \
-	 --no-userinit \
 	 --eval '(require :asdf)' \
-	 --eval "(asdf:oos 'asdf:load-op :delta)" \
+	 --eval '(push (uiop:ensure-absolute-pathname *default-pathname-defaults*) asdf:*central-registry*)' \
+	 --eval '(asdf:load-system :delta)' \
 	 --eval "(time (delta:delta-file \"${INPUT}\" \"${SCRIPT}\"))" \
 	 --eval '(quit)'
 

@@ -36,7 +36,9 @@ compiled and run using
 
 Where delta-lisp and delta-c++ take their input and predicate from can
 be set on the command line or through the makefile variables INPUT and
-SCRIPT.
+SCRIPT as in
+
+  make run-delta-ql INPUT=test-silly/input SCRIPT=test-silly/test.sh
 
 The makefile is convenient for testing but by no means necessary in
 order to use delta-lisp/c++. Each test consists of an input file named

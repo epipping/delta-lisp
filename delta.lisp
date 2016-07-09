@@ -28,11 +28,8 @@ as strings to the array `*file-contents*`."
 (defun write-from-indices (indices stream)
   "Write the subset of `*file-contents*` represented by the Boolean
 vector `indices` to the stream `stream`."
-  (loop
-     for bit across indices
-     for index from 0
-     do (when (= 1 bit)
-          (format stream "~a~%" (aref *file-contents* index)))))
+  (loop for index in indices
+     do (format stream "~a~%" (aref *file-contents* index))))
 
 (defun indices->file (indices)
   "Write the subset of `*file-contents*` represented by the Boolean
@@ -56,7 +53,7 @@ represented by the Boolean vector `indices`."
 `length` is divided into `numparts`-many chunks of (roughly) equal size."
   (floor (* part (/ length numparts))))
 
-(defun test-removal (indices numparts len)
+(defun test-removal (indices numparts)
   "Check if removing certain subsets of `indices` yields a reduction.
 
 The parameter `indices` should be a subset of `*file-contents*`,
@@ -69,37 +66,31 @@ its size.
 If no chunk passes, nil is returned."
   (loop for i from 0 below numparts
      ;; Relative to the subset, where chunk #i begins/ends
-     for begin = (compute-break len i numparts) then end
-     and end = (compute-break len (1+ i) numparts)
-     for remaining-length = (- len (- end begin))
-     ;; Relative to the whole Boolean vector, where chunk #i begins/ends
-     for old-offset = 0 then new-offset
-     for new-offset = (loop for index from old-offset
-                         with index-without-zeroes = begin
-                         until (= index-without-zeroes end)
-                         do (when (= 1 (sbit indices index))
-                              (incf index-without-zeroes))
-                         finally (return index))
-     ;; Create a copy of the Boolean vector `indices` and remove a chunk
-     for complement = (copy-seq indices)
-     do (fill complement 0 :start old-offset :end new-offset)
-     do (when (subset-passed complement)
-          (format t "Reduced to ~a lines.~%" remaining-length)
+     for begin = (compute-break (length indices) i numparts) then end
+     and end = (compute-break (length indices) (1+ i) numparts)
+     ;; Remove a chunk
+     for complement = (mapcan #'(lambda (n)
+                                  (if (or (< n begin) (>= n end))
+                                      ;; FIXME: This might be slow
+                                      (list (nth n indices))))
+                              (loop for n from 0 below (length indices) collect n))
+     do (when (and (< (length complement) (length indices))
+                   (subset-passed complement))
+          (format t "Reduced to ~a lines (from ~a).~%" (length complement) (length indices))
           (osicat-posix:rename *output-name* *minimal-output-name*)
-          (return (values complement remaining-length)))))
+          (return complement))))
 
-(defun ddmin (indices old-numparts old-length)
-  (multiple-value-bind (passing-subset new-length)
-      (test-removal indices old-numparts old-length)
+(defun ddmin (indices old-numparts)
+  (let ((passing-subset (test-removal indices old-numparts)))
     (cond
       (passing-subset
-       (ddmin passing-subset (max (1- old-numparts) 2) new-length))
+       (ddmin passing-subset (max (1- old-numparts) 2)))
       ;; check if increasing granularity makes sense
-      ((< old-numparts old-length)
-       (let ((new-numparts (min old-length (* 2 old-numparts))))
+      ((< old-numparts (length indices))
+       (let ((new-numparts (min (length indices) (* 2 old-numparts))))
          (format t "Increasing granularity. Number of segments now: ~a.~%"
                  new-numparts)
-         (ddmin indices new-numparts old-length)))
+         (ddmin indices new-numparts)))
       ;; done: found a 1-minimal subset
       (t indices))))
 
@@ -107,10 +98,10 @@ If no chunk passes, nil is returned."
   "Minimise a subset of `*file-contents*` represented by the Boolean
 vector `indices` under the constraint that `*script-name*` returns 0
 when a file consisting of that subset is passed as its sole argument."
-  (if (subset-passed indices)
-      (format t "Starting with ~a lines~%" *number-of-lines*)
-      (error "Initial input does not satisfy the predicate"))
-  (ddmin indices 2 *number-of-lines*))
+  (format t "Starting with ~a lines~%" *number-of-lines*)
+  (unless (subset-passed indices)
+    (error "Initial input does not satisfy the predicate"))
+  (ddmin indices 2))
 
 (defun delta-file (filename script-name)
   "Minimise the file given by `filename` under the constraint that
@@ -123,7 +114,6 @@ minimum. It will satisfy the condition of 1-minimility, i.e. that no
 different solution can be found by removing a single line."
   (read-file filename)
   (setf *script-name* script-name)
-  (let ((minimal-subset (delta (make-array *number-of-lines*
-                                           :element-type 'bit
-                                           :initial-element 1))))
+  (let ((minimal-subset (delta
+                         (loop for index from 0 below *number-of-lines* collect index))))
     (indices->file minimal-subset)))

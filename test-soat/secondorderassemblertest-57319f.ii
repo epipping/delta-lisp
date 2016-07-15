@@ -1,0 +1,570 @@
+namespace std {
+typedef long unsigned int size_t;
+  template <typename> class allocator;
+  template <typename _Tp, _Tp __v> struct integral_constant {
+    static constexpr _Tp value = __v;
+    typedef _Tp value_type;
+    typedef integral_constant<_Tp, __v> type;
+    constexpr operator value_type() const {}
+  };
+  typedef integral_constant<bool, false> false_type;
+  template <bool, typename, typename> struct conditional;
+  template <typename...> struct __or_;
+  template <typename _B1, typename _B2>
+  struct __or_<_B1, _B2> : public conditional<_B1::value, _B1, _B2>::type {};
+  template <typename _B1, typename _B2, typename _B3, typename... _Bn>
+  struct __or_<_B1, _B2, _B3, _Bn...>
+      : public conditional<_B1::value, _B1, __or_<_B2, _B3, _Bn...>>::type {};
+  template <typename _Pp>
+  struct __not_ : public integral_constant<bool, !_Pp::value> {};
+  template <typename _Tp> struct __success_type { typedef _Tp type; };
+  template <typename> struct remove_cv;
+  template <typename> struct __is_void_helper : public false_type {};
+  template <typename _Tp>
+  struct is_void
+      : public __is_void_helper<typename remove_cv<_Tp>::type>::type {};
+  template <typename> struct is_array : public false_type {};
+  template <typename> struct is_lvalue_reference : public false_type {};
+  template <typename> struct is_rvalue_reference : public false_type {};
+  template <typename>
+  struct __is_member_object_pointer_helper : public false_type {};
+  template <typename _Tp>
+  struct is_member_object_pointer : public __is_member_object_pointer_helper<
+                                        typename remove_cv<_Tp>::type>::type {};
+  template <typename>
+  struct __is_member_function_pointer_helper : public false_type {};
+  template <typename _Tp>
+  struct is_member_function_pointer
+      : public __is_member_function_pointer_helper<
+            typename remove_cv<_Tp>::type>::type {};
+  template <typename> struct is_function : public false_type {};
+  template <typename _Tp>
+  struct is_reference
+      : public __or_<is_lvalue_reference<_Tp>, is_rvalue_reference<_Tp>>::type {
+  };
+  template <typename _Tp>
+  struct is_object
+      : public __not_<
+            __or_<is_function<_Tp>, is_reference<_Tp>, is_void<_Tp>>>::type {};
+  template <typename _Tp>
+  struct __is_referenceable
+      : public __or_<is_object<_Tp>, is_reference<_Tp>>::type {};
+  template <typename _Tp>
+  struct is_empty : public integral_constant<bool, __is_empty(_Tp)> {};
+  template <typename> struct add_rvalue_reference;
+  template <typename _Tp>
+  typename add_rvalue_reference<_Tp>::type declval() noexcept;
+  template <typename, typename> struct is_same : public false_type {};
+  template <typename _Base, typename _Derived>
+  struct is_base_of
+      : public integral_constant<bool, __is_base_of(_Base, _Derived)> {};
+  template <typename _Tp> struct remove_const { typedef _Tp type; };
+  template <typename _Tp> struct remove_volatile { typedef _Tp type; };
+  template <typename _Tp> struct remove_cv {
+    typedef
+        typename remove_const<typename remove_volatile<_Tp>::type>::type type;
+  };
+  template <typename _Tp> struct remove_reference { typedef _Tp type; };
+  template <typename _Tp> struct remove_reference<_Tp &> { typedef _Tp type; };
+  template <typename _Tp, bool = __is_referenceable<_Tp>::value>
+  struct __add_rvalue_reference_helper {
+    typedef _Tp type;
+  };
+  template <typename _Tp>
+  struct add_rvalue_reference : public __add_rvalue_reference_helper<_Tp> {};
+  template <typename _Up, bool _IsArray = is_array<_Up>::value,
+            bool _IsFunction = is_function<_Up>::value>
+  struct __decay_selector;
+  template <typename _Up> struct __decay_selector<_Up, false, false> {
+    typedef typename remove_cv<_Up>::type __type;
+  };
+  template <typename _Tp> class decay {
+    typedef typename remove_reference<_Tp>::type __remove_type;
+  public:
+    typedef typename __decay_selector<__remove_type>::__type type;
+  };
+  template <bool, typename _Tp = void> struct enable_if {};
+  template <bool _Cond, typename _Iftrue, typename _Iffalse>
+  struct conditional {
+    typedef _Iffalse type;
+  };
+  template <typename _Signature> class result_of;
+  template <bool, bool, typename _Functor, typename... _ArgTypes>
+  struct __result_of_impl {};
+  struct __result_of_other_impl {
+    template <typename _Fn, typename... _Args>
+    static __success_type<
+        decltype(std::declval<_Fn>()(std::declval<_Args>()...))>
+    _S_test(int);
+  };
+  template <typename _Functor, typename... _ArgTypes>
+  struct __result_of_impl<false, false, _Functor, _ArgTypes...>
+      : private __result_of_other_impl {
+    typedef decltype(_S_test<_Functor, _ArgTypes...>(0)) type;
+  };
+  template <typename _Functor, typename... _ArgTypes>
+  struct result_of<_Functor(_ArgTypes...)>
+      : public __result_of_impl<
+            is_member_object_pointer<
+                typename remove_reference<_Functor>::type>::value,
+            is_member_function_pointer<
+                typename remove_reference<_Functor>::type>::value,
+            _Functor, _ArgTypes...>::type {};
+  template <typename _Tp> using decay_t = typename decay<_Tp>::type;
+  template <typename _Tp>
+  constexpr _Tp &&forward(typename std::remove_reference<_Tp>::type &
+                          __t) noexcept {};
+}
+typedef long unsigned int size_t;
+namespace std __attribute__((__visibility__("default"))) {
+  template <typename _Tp, std::size_t _Nm> struct array {};
+  template <size_t... _Indexes> struct _Index_tuple {};
+  template <size_t _Num> struct _Build_index_tuple {
+    typedef _Index_tuple<> __type;
+  };
+  template <typename _Tp, _Tp... _Idx> struct integer_sequence {};
+  template <typename _Tp, _Tp _Num,
+            typename _ISeq = typename _Build_index_tuple<_Num>::__type>
+  struct _Make_integer_sequence;
+  template <typename _Tp, _Tp _Num, size_t... _Idx>
+  struct _Make_integer_sequence<_Tp, _Num, _Index_tuple<_Idx...>> {
+    typedef integer_sequence<_Tp, static_cast<_Tp>(_Idx)...> __type;
+  };
+  template <typename _Tp, _Tp _Num>
+  using make_integer_sequence =
+      typename _Make_integer_sequence<_Tp, _Num>::__type;
+  template <size_t... _Idx>
+  using index_sequence = integer_sequence<size_t, _Idx...>;
+  template <size_t _Num>
+  using make_index_sequence = make_integer_sequence<size_t, _Num>;
+  template <typename _Tp, typename _Alloc> struct _Vector_base {};
+  template <typename _Tp, typename _Alloc = std::allocator<_Tp>>
+  class vector : protected _Vector_base<_Tp, _Alloc> {};
+  template <typename _Tp> struct __add_ref {};
+  template <std::size_t _Idx, typename _Head, bool _IsEmptyNotFinal>
+  struct _Head_base;
+  template <std::size_t _Idx, typename _Head>
+  struct _Head_base<_Idx, _Head, false> {
+    constexpr _Head_base(const _Head &__h) : _M_head_impl(__h) {}
+    _Head _M_head_impl;
+  };
+  template <std::size_t _Idx, typename... _Elements> struct _Tuple_impl;
+  template <std::size_t _Idx> struct _Tuple_impl<_Idx> {};
+  template <typename _Tp> struct __is_empty_non_tuple : is_empty<_Tp> {};
+  template <typename _Tp>
+  using __empty_not_final =
+      typename conditional<__is_final(_Tp), false_type,
+                           __is_empty_non_tuple<_Tp>>::type;
+  template <std::size_t _Idx, typename _Head, typename... _Tail>
+  struct _Tuple_impl<_Idx, _Head, _Tail...>
+      : public _Tuple_impl<_Idx + 1, _Tail...>,
+        private _Head_base<_Idx, _Head, __empty_not_final<_Head>::value> {
+    typedef _Tuple_impl<_Idx + 1, _Tail...> _Inherited;
+    typedef _Head_base<_Idx, _Head, __empty_not_final<_Head>::value> _Base;
+    explicit constexpr _Tuple_impl(const _Head &__head, const _Tail &... __tail)
+        : _Inherited(__tail...), _Base(__head) {}
+  };
+  template <typename... _Elements>
+  class tuple : public _Tuple_impl<0, _Elements...> {
+    typedef _Tuple_impl<0, _Elements...> _Inherited;
+  public:
+    explicit constexpr tuple(const _Elements &... __elements)
+        : _Inherited(__elements...) {}
+  };
+  template <std::size_t __i, typename _Tp> struct tuple_element;
+  template <typename _Tp> struct tuple_size;
+  template <typename... _Elements>
+  struct tuple_size<tuple<_Elements...>>
+      : public integral_constant<std::size_t, sizeof...(_Elements)> {};
+  template <std::size_t __i, typename... _Elements>
+  constexpr typename __add_ref<
+      typename tuple_element<__i, tuple<_Elements...>>::type>::type
+      get(tuple<_Elements...> & __t) noexcept {};
+}
+namespace Dune {
+template <typename Communicator> class CollectiveCommunication {};
+typedef struct ompi_communicator_t *MPI_Comm;
+template <int k> class bigunsignedint;
+template <typename V> class DenseVector {};
+template <class K, int SIZE>
+class FieldVector : public DenseVector<FieldVector<K, SIZE>> {};
+class GeometryType {
+public:
+  enum BasicType { simplex, cube, pyramid, prism, extended, none };
+  unsigned int topologyId_;
+  unsigned char dim_ : 7;
+  bool none_ : 1;
+  GeometryType(BasicType basicType, unsigned int dim)
+      : topologyId_(0), dim_(dim),
+        none_((basicType == GeometryType::none) ? true : false) {}
+};
+enum PartitionIteratorType {
+};
+template <class ViewTraits> class GridView {
+public:
+  typedef ViewTraits Traits;
+  typedef typename Traits::Grid Grid;
+  typedef typename Grid::ctype ctype;
+  enum { dimension = Grid::dimension };
+};
+template <class GridImp> struct DefaultLevelGridViewTraits {};
+template <class GridImp> struct DefaultLeafGridViewTraits {
+  typedef typename std::remove_const<GridImp>::type Grid;
+};
+template <int mydim, int cdim, class GridImp,
+          template <int, int, class> class GeometryImp>
+class Geometry;
+template <int codim, int dim, class GridImp,
+          template <int, int, class> class EntityImp>
+class Entity;
+template <class GridImp, class IndexSetImp, class IndexTypeImp = unsigned int,
+          class TypesImp = std::vector<GeometryType>>
+class IndexSet;
+template <int dim, int dimworld, class ct, class GridFamily> class Grid {
+public:
+  enum { dimension = dim };
+  enum { dimensionworld = dimworld };
+  typedef typename GridFamily::Traits::LeafGridView LeafGridView;
+  template <int cd> struct Codim {
+    typedef typename GridFamily::Traits::template Codim<cd>::Geometry Geometry;
+  };
+};
+template <int dim, int dimworld, class ct, class GridFamily>
+class GridDefaultImplementation : public Grid<dim, dimworld, ct, GridFamily> {};
+template <int dim, int dimw, class GridImp,
+          template <int, int, class> class GeometryImp,
+          template <int, int, class> class EntityImp,
+          template <int, PartitionIteratorType, class> class LevelIteratorImp,
+          template <class> class LeafIntersectionImp,
+          template <class> class LevelIntersectionImp,
+          template <class> class LeafIntersectionIteratorImp,
+          template <class> class LevelIntersectionIteratorImp,
+          template <class> class HierarchicIteratorImp,
+          template <int, PartitionIteratorType, class> class LeafIteratorImp,
+          class LevelIndexSetImp, class LeafIndexSetImp, class GlobalIdSetImp,
+          class GIDType, class LocalIdSetImp, class LIDType, class CCType,
+          template <class> class LevelGridViewTraits,
+          template <class> class LeafGridViewTraits,
+          template <int, class> class EntitySeedImp,
+          template <int, int, class> class LocalGeometryImp = GeometryImp>
+struct GridTraits {
+  template <int cd> struct Codim {
+    typedef Dune::Geometry<dim - cd, dimw, const GridImp, GeometryImp> Geometry;
+  };
+  typedef Dune::GridView<LeafGridViewTraits<const GridImp>> LeafGridView;
+};
+template <class K, int ROWS, int COLS> class FieldMatrix;
+template <int mydim, int cdim, class GridImp,
+          template <int, int, class> class GeometryImp>
+class Geometry {
+public:
+  typedef typename GridImp::ctype ctype;
+  typedef FieldVector<ctype, cdim> GlobalCoordinate;
+};
+template <int cd, int dim, class GridImp,
+          template <int, int, class> class EntityImp>
+class EntityDefaultImplementation {};
+template <class GridImp, class IdSetImp, class IdTypeImp> class IdSet {};
+template <class CoordType, unsigned int dim, unsigned int coorddim>
+class AxisAlignedCubeGeometry {};
+const int yaspgrid_dim_bits = 24;
+const int yaspgrid_level_bits = 5;
+template <int dim, class Coordinates> class YaspGrid;
+template <int codim, class GridImp> class YaspEntitySeed;
+template <class GridImp> class YaspIntersectionIterator;
+template <class GridImp> class YaspHierarchicIterator;
+template <class ct, int dim> class EquidistantCoordinates {
+public:
+  typedef ct ctype;
+};
+template <int mydim, int cdim, class GridImp>
+class YaspGeometry
+    : public AxisAlignedCubeGeometry<typename GridImp::ctype, mydim, cdim> {};
+template <int codim, int dim, class GridImp>
+class YaspEntity
+    : public EntityDefaultImplementation<codim, dim, GridImp, YaspEntity> {};
+template <class GridImp> class YaspIntersection {};
+template <int codim, class GridImp> class YaspEntityPointer {};
+template <int codim, PartitionIteratorType pitype, class GridImp>
+class YaspLevelIterator : public YaspEntityPointer<codim, GridImp> {};
+template <class GridImp, bool isLeafIndexSet>
+class YaspIndexSet
+    : public IndexSet<GridImp, YaspIndexSet<GridImp, isLeafIndexSet>,
+                      unsigned int> {};
+template <class GridImp>
+class YaspGlobalIdSet
+    : public IdSet<
+          GridImp, YaspGlobalIdSet<GridImp>,
+          typename std::remove_const<GridImp>::type::PersistentIndexType> {};
+template <int dim, class Coordinates> struct YaspGridFamily {
+  typedef CollectiveCommunication<MPI_Comm> CCType;
+  typedef GridTraits<
+      dim, dim, Dune::YaspGrid<dim, Coordinates>, YaspGeometry, YaspEntity,
+      YaspLevelIterator, YaspIntersection, YaspIntersection,
+      YaspIntersectionIterator, YaspIntersectionIterator,
+      YaspHierarchicIterator, YaspLevelIterator,
+      YaspIndexSet<const YaspGrid<dim, Coordinates>, false>,
+      YaspIndexSet<const YaspGrid<dim, Coordinates>, true>,
+      YaspGlobalIdSet<const YaspGrid<dim, Coordinates>>,
+      bigunsignedint<dim * yaspgrid_dim_bits + yaspgrid_level_bits + dim>,
+      YaspGlobalIdSet<const YaspGrid<dim, Coordinates>>,
+      bigunsignedint<dim * yaspgrid_dim_bits + yaspgrid_level_bits + dim>,
+      CCType, DefaultLevelGridViewTraits, DefaultLeafGridViewTraits,
+      YaspEntitySeed>
+      Traits;
+};
+template <int dim, class Coordinates = EquidistantCoordinates<double, dim>>
+class YaspGrid
+    : public GridDefaultImplementation<dim, dim, typename Coordinates::ctype,
+                                       YaspGridFamily<dim, Coordinates>> {
+public:
+  typedef typename Coordinates::ctype ctype;
+};
+template <class DF, int n, class D, class RF, int m, class R, class J,
+          int dorder = 0>
+struct LocalBasisTraits {
+  typedef DF DomainFieldType;
+  enum { dimDomain = n };
+  typedef D DomainType;
+  typedef RF RangeFieldType;
+  enum { dimRange = m };
+  typedef R RangeType;
+  typedef J JacobianType;
+};
+template <class LB, class LC, class LI> struct LocalFiniteElementTraits {
+  typedef LB LocalBasisType;
+};
+template <class T> struct LowerOrderLocalBasisTraits {};
+template <class T, int order> struct FixedOrderLocalBasisTraits {
+  typedef LocalBasisTraits<typename T::DomainFieldType, T::dimDomain,
+                           typename T::DomainType, typename T::RangeFieldType,
+                           T::dimRange, typename T::RangeType,
+                           typename T::JacobianType, order>
+      Traits;
+};
+template <class T>
+class LocalFiniteElementVirtualInterface
+    : public virtual LocalFiniteElementVirtualInterface<
+          typename LowerOrderLocalBasisTraits<T>::Traits> {};
+};
+template <class GV, class RT, class LFE> class FunctionSpaceBasis {
+public:
+  typedef LFE LocalFiniteElement;
+};
+namespace Arithmetic {
+template <class A, class B, class C>
+void addProduct(A &a, const B &b, const C &c) {}
+}
+namespace Dune {
+namespace TypeTree {
+class LeafNode {};
+template <typename... T> class HybridTreePath {};
+namespace impl {
+}
+}
+namespace Functions {
+template <typename size_t, typename TP> class BasisNodeMixin {};
+template <typename size_t, typename TP>
+class LeafBasisNode : public BasisNodeMixin<size_t, TP>,
+                      public TypeTree::LeafNode {};
+};
+template <class D, class R, int d> class P0LocalBasis {
+public:
+  typedef LocalBasisTraits<D, d, Dune::FieldVector<D, d>, R, 1,
+                           Dune::FieldVector<R, 1>, Dune::FieldMatrix<R, 1, d>,
+                           0>
+      Traits;
+};
+class P0LocalCoefficients {};
+template <class LB> class P0LocalInterpolation {};
+template <class D, class R, int d> class P0LocalFiniteElement {
+public:
+  typedef LocalFiniteElementTraits<P0LocalBasis<D, R, d>, P0LocalCoefficients,
+                                   P0LocalInterpolation<P0LocalBasis<D, R, d>>>
+      Traits;
+};
+}
+class QuadratureRuleKey {
+public:
+  QuadratureRuleKey(const int dim, const int order, const int refinement = 0,
+                    bool lumping = false)
+      : gt_(Dune::GeometryType::none, dim), order_(order),
+        refinement_(refinement), lumping_(lumping) {}
+  Dune::GeometryType gt_;
+  int order_;
+  int refinement_;
+  bool lumping_;
+};
+template <class GridType, class TrialLocalFE, class AnsatzLocalFE, typename T>
+class LocalOperatorAssembler {
+public:
+  typedef T MatrixEntry;
+};
+namespace Dune {
+namespace Fufem {
+namespace Concept {
+namespace Imp {
+template <class... T> struct TypeList {};
+template <class T> struct IsTypeList : std::false_type {};
+template <class T> static constexpr bool isTypeList() {
+  return IsTypeList<T>();
+}
+template <class T> static constexpr bool isEmptyTypeList() {
+  return isTypeList<T>() and std::is_same<T, TypeList<>>();
+}
+struct RefinedConcept {};
+template <class C> static constexpr bool isRefinedConcept() {
+  return std::is_base_of<RefinedConcept, C>();
+}
+template <class C, class... T> static constexpr bool matchesRequirement() {
+  return decltype(matchesRequirement<C, T...>(std::declval<C *>()))::value;
+}
+template <class C, class... T,
+          typename std::enable_if<isEmptyTypeList<C>(), int>::type = 0>
+static constexpr bool modelsConceptList() {
+  return true;
+}
+template <class C, class... T,
+          typename std::enable_if<
+              not(isTypeList<C>()) and isRefinedConcept<C>(), int>::type = 0>
+static constexpr bool modelsConcept() {
+  return matchesRequirement<C, T...>() and
+         modelsConceptList<typename C::BaseConceptList, T...>();
+}
+template <class C, class... T> static constexpr bool modelsImp() {
+  return modelsConcept<C, T...>();
+}
+}
+template <class C, class... T> static constexpr bool models() {
+  return Imp::modelsImp<C, T...>();
+}
+}
+}
+}
+template <typename F, typename Tuple, size_t... I>
+decltype(auto) apply_impl(F &&f, Tuple &&t, std::index_sequence<I...>) {
+  return std::forward<F>(f)(std::get<I>(std::forward<Tuple>(t))...);
+}
+template <typename F, typename Tuple> decltype(auto) apply(F &&f, Tuple &&t) {
+  using Indices =
+      std::make_index_sequence<std::tuple_size<std::decay_t<Tuple>>::value>;
+  return apply_impl(std::forward<F>(f), std::forward<Tuple>(t), Indices{});
+}
+namespace Dune {
+namespace Fufem {
+namespace Concept {
+template <class ResultMat, class Scalar, class Coord, class... ReturnTypes>
+struct SecondOrderOperatorAssemblerContraction {
+  static ResultMat &r;
+  static Scalar &s;
+  std::tuple<ReturnTypes...> &otherArgs;
+  template <class F>
+  auto require(F &&f)
+      -> decltype(Arithmetic::addProduct(r, s, apply([](auto... args) {},
+                                                     otherArgs)));
+};
+}
+}
+}
+template <class GridType, class TrialLocalFE, class AnsatzLocalFE,
+          class Contraction, class MB = Dune::FieldMatrix<double, 1, 1>,
+          class... FunctionTypes>
+class SecondOrderOperatorAssembler
+    : public LocalOperatorAssembler<GridType, TrialLocalFE, AnsatzLocalFE, MB> {
+  typedef LocalOperatorAssembler<GridType, TrialLocalFE, AnsatzLocalFE, MB>
+      Base;
+  static const int dimworld = GridType::dimensionworld;
+public:
+  typedef typename Base::MatrixEntry MatrixEntry;
+  typedef typename Dune::template FieldVector<double, dimworld> WorldCoordinate;
+  SecondOrderOperatorAssembler(const Contraction &contraction, bool isSymmetric,
+                               QuadratureRuleKey coefficientQuadKey,
+                               FunctionTypes... functions)
+      : contraction_(contraction), isSymmetric_(isSymmetric),
+        coefficientQuadKey_(coefficientQuadKey), functions_(functions...) {
+    typedef Dune::Fufem::Concept::SecondOrderOperatorAssemblerContraction<
+        MatrixEntry, double, WorldCoordinate,
+        typename std::result_of<FunctionTypes(WorldCoordinate)>::type...>
+        ContractionConcept;
+    static_assert(
+        Dune::Fufem::Concept::models<ContractionConcept, Contraction>(),
+        "contraction(WorldCoordinate, WorldCoordinate, ...))");
+  }
+  const Contraction contraction_;
+  bool isSymmetric_;
+  const QuadratureRuleKey coefficientQuadKey_;
+  std::tuple<FunctionTypes...> functions_;
+};
+template <class DFBasis>
+class DuneFunctionsBasis
+    : public FunctionSpaceBasis<
+          typename DFBasis::GridView, double,
+          typename DFBasis::LocalView::Tree::FiniteElement> {};
+namespace Dune {
+template <class D, class R, int dim, int k> class PQkLocalFiniteElementCache {
+  typedef typename FixedOrderLocalBasisTraits<
+      typename P0LocalFiniteElement<D, R, dim>::Traits::LocalBasisType::Traits,
+      0>::Traits T;
+  typedef LocalFiniteElementVirtualInterface<T> FE;
+public:
+  typedef FE FiniteElementType;
+};
+namespace Functions {
+template <class GB> class DefaultLocalView {
+  using PrefixPath = TypeTree::HybridTreePath<>;
+public:
+  using GlobalBasis = GB;
+  using Tree = typename GlobalBasis::NodeFactory::template Node<PrefixPath>;
+};
+template <class NF> class DefaultGlobalBasis {
+public:
+  using NodeFactory = NF;
+  using GridView = typename NodeFactory::GridView;
+  using LocalView = DefaultLocalView<DefaultGlobalBasis<NodeFactory>>;
+};
+template <class size_type>
+class FlatMultiIndex : public std::array<size_type, 1> {};
+template <typename GV, typename ST, typename TP> class PQ1Node;
+template <typename GV, class MI, class ST> class PQ1NodeFactory {
+public:
+  using GridView = GV;
+  using size_type = ST;
+  template <class TP> using Node = PQ1Node<GV, size_type, TP>;
+};
+template <typename GV, typename ST, typename TP>
+class PQ1Node : public LeafBasisNode<ST, TP> {
+  static const int dim = GV::dimension;
+  using FiniteElementCache =
+      typename Dune::PQkLocalFiniteElementCache<typename GV::ctype, double, dim,
+                                                1>;
+public:
+  using FiniteElement = typename FiniteElementCache::FiniteElementType;
+};
+template <typename GV, class ST = std::size_t>
+using PQ1NodalBasis =
+    DefaultGlobalBasis<PQ1NodeFactory<GV, FlatMultiIndex<ST>, ST>>;
+}
+}
+using namespace Dune;
+int main(int argc, char *argv[]) {
+  const int dim = 3;
+  typedef YaspGrid<dim> GridType;
+  typedef DuneFunctionsBasis<
+      Dune::Functions::PQ1NodalBasis<GridType::LeafGridView>>
+      P1Basis;
+  typedef FieldMatrix<double, dim, dim> LocalMatrix;
+  {
+    double const E = 2.8;
+    double const nu = 0.23;
+    typedef GridType::Codim<0>::Geometry::GlobalCoordinate GlobalCoordinate;
+    auto const funcE = [E](GlobalCoordinate const &) { return E; };
+    auto const funcNu = [nu](GlobalCoordinate const &) { return nu; };
+    auto contraction = [](const GlobalCoordinate &g1,
+                          const GlobalCoordinate &g2, double E, double nu) {};
+    SecondOrderOperatorAssembler<
+        GridType, P1Basis::LocalFiniteElement, P1Basis::LocalFiniteElement,
+        decltype(contraction), LocalMatrix, decltype(funcE), decltype(funcNu)>
+        secondOrderAssembler(contraction, true, QuadratureRuleKey(dim, 0),
+                             funcE, funcNu);
+  }
+}

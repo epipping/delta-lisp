@@ -53,6 +53,13 @@ represented by the Boolean vector `indices`."
 `length` is divided into `numparts`-many chunks of (roughly) equal size."
   (floor (* part (/ length numparts))))
 
+(defun exclude-range (first last list)
+  (if (> first 0)
+      (cons (car list) (exclude-range (1- first) (1- last) (cdr list)))
+      (if (> last 0)
+          (exclude-range first (1- last) (cdr list))
+          list)))
+
 (defun test-removal (indices numparts)
   "Check if removing certain subsets of `indices` yields a reduction.
 
@@ -69,11 +76,7 @@ If no chunk passes, nil is returned."
      for begin = (compute-break (length indices) i numparts) then end
      and end = (compute-break (length indices) (1+ i) numparts)
      ;; Remove a chunk
-     for complement = (mapcan #'(lambda (n)
-                                  (if (or (< n begin) (>= n end))
-                                      ;; FIXME: This might be slow
-                                      (list (nth n indices))))
-                              (loop for n from 0 below (length indices) collect n))
+     for complement = (exclude-range begin end indices)
      do (when (subset-passed complement)
           (format t "Reduced to ~a lines.~%" (length complement))
           (osicat-posix:rename *output-name* *minimal-output-name*)

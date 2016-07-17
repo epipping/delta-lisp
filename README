@@ -1,27 +1,23 @@
-Rewrite of delta[1] which is based on the ddmin algorithm described in [2].
+Rewrite of delta[1] which is based on the ddmin algorithm described in
+[2].
 
 The original delta algorithm considers first subsets and then their
 complements. Both this implementation and the one from [1] skip the
 subset step.
 
-There are two implementations, one in common lisp and one in C++.
-
-The C++ version should work with any C++98 compiler but has only been
-tested with g++ and clang++.
-The Common Lisp version should work with any common lisp compiler but
-has only been tested with sbcl.
-
-The C++ version has no external dependencies.
-The Common Lisp version uses
+Any common lisp compiler should do but only sbcl has been
+tested. There are two external dependencies:
 
  * osicat: http://common-lisp.net/project/osicat/
  * external-program: http://common-lisp.net/project/osicat/
 
-Both libraries are available via quicklisp[3].
+Both libraries are available via quicklisp[3] and will be
+automatically installed if `make run-delta-ql` is used (see below).
 
 A sample makefile is provided that allows to switch back and forth
 between multiple implementations of delta for testing purposes, namely
-the two implementations described herein and the one from [1].
+the common lisp implementation described herein and the one from [1]
+(in perl).
 
 In particular, with a shell inside a clone of this repository, as well
 as sbcl and quicklisp installed, one can run
@@ -29,27 +25,17 @@ as sbcl and quicklisp installed, one can run
   make run-delta-ql
 
 to compile the delta-lisp tool and use it to reduce the file ./input
-under the constraint that ./test.sh returns zero. The C++ version is
-compiled and run using
-
-  make run-delta-c++
-
-Where delta-lisp and delta-c++ take their input and predicate from can
-be set on the command line or through the makefile variables INPUT and
-SCRIPT as in
+under the constraint that ./test.sh returns zero. Where delta takes
+its input and predicate from can be set on the command line or through
+the makefile variables INPUT and SCRIPT as in
 
   make run-delta-ql INPUT=test-silly/input SCRIPT=test-silly/test.sh
 
 The makefile is convenient for testing but by no means necessary in
-order to use delta-lisp/c++. Each test consists of an input file named
-input and a script named test.sh and resides in a separate
-subdirectory.
+order to use delta-lisp.
 
-The C++ version uses less memory and is a bit faster, maybe because
-the data structures that are used in the Common Lisp implementation
-are suboptimal (they certainly are, but that might not be the reason)
-whereas std::vector is perfect for the task. Patches are welcome.
-
+Each test consists of an input file named input and a script named
+test.sh and resides in a separate subdirectory.
 
 [1] http://delta.tigris.org/
 [2] http://www.st.cs.uni-saarland.de/papers/tse2002/

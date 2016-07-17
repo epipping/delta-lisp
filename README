@@ -9,7 +9,7 @@ Any common lisp compiler should do but only sbcl has been
 tested. There are two external dependencies:
 
  * osicat: http://common-lisp.net/project/osicat/
- * external-program: http://common-lisp.net/project/osicat/
+ * external-program: http://common-lisp.net/project/external-program/
 
 Both libraries are available via quicklisp[3] and will be
 automatically installed if `make run-delta-ql` is used (see below).

@@ -24,16 +24,15 @@ as strings to the array `*file-contents*`."
        do (vector-push-extend line *file-contents*)))
   (setf *number-of-lines* (length *file-contents*)))
 
-;; TODO: make this more lispy
 (defun write-from-indices (indices stream)
-  "Write the subset of `*file-contents*` represented by the Boolean
-vector `indices` to the stream `stream`."
+  "Write the subset of `*file-contents*` represented by the index list
+`indices` to the stream `stream`."
   (loop for index in indices
      do (format stream "~a~%" (aref *file-contents* index))))
 
 (defun indices->file (indices)
-  "Write the subset of `*file-contents*` represented by the Boolean
-vector `indices` to the file \"output\"."
+  "Write the subset of `*file-contents*` represented by the index list
+  `indices` to the file \"output\"."
   (with-open-file (stream *output-name*
                           :direction :output
                           :if-exists :supersede)
@@ -41,7 +40,7 @@ vector `indices` to the file \"output\"."
 
 (defun subset-passed (indices)
   "Run the script `*script-name*` on the subset of `*file-contents*`
-represented by the Boolean vector `indices`."
+represented by the index list `indices`."
   (indices->file indices)
   (multiple-value-bind (status return-code)
       (external-program:run *script-name* (list *output-name*))
@@ -50,10 +49,13 @@ represented by the Boolean vector `indices`."
 
 (defun compute-break (length part numparts)
   "Compute mark at which chunk #`part` begins when a list of length
-`length` is divided into `numparts`-many chunks of (roughly) equal size."
+`length` is divided into `numparts`-many chunks of (roughly) equal
+size."
   (floor (* part (/ length numparts))))
 
 (defun exclude-range (first last list)
+  "Remove range of indices from `first` to `last` from list
+`list`. The range is taken is left-inclusive and right-exclusive."
   (if (> first 0)
       (cons (car list) (exclude-range (1- first) (1- last) (cdr list)))
       (if (> last 0)
@@ -64,11 +66,10 @@ represented by the Boolean vector `indices`."
   "Check if removing certain subsets of `indices` yields a reduction.
 
 The parameter `indices` should be a subset of `*file-contents*`,
-represented through a Boolean vector. The subset will be divided into
-`numparts`-many chunks of (roughly) equal size; for eac chunk, its
+represented through a list of indices. The subset will be divided into
+`numparts`-many chunks of (roughly) equal size; for each chunk, its
 complement with respect to the subset will be tested. The first one
-that makes `*script-name*` pass will be returned in conjunction with
-its size.
+that makes `*script-name*` pass will be returned.
 
 If no chunk passes, nil is returned."
   (loop for i from 0 below numparts
@@ -97,8 +98,8 @@ If no chunk passes, nil is returned."
       (t indices))))
 
 (defun delta (indices)
-  "Minimise a subset of `*file-contents*` represented by the Boolean
-vector `indices` under the constraint that `*script-name*` returns 0
+  "Minimise a subset of `*file-contents*` represented by the index
+list `indices` under the constraint that `*script-name*` returns 0
 when a file consisting of that subset is passed as its sole argument."
   (format t "Starting with ~a lines~%" *number-of-lines*)
   (unless (subset-passed indices)
@@ -111,7 +112,7 @@ when a file consisting of that subset is passed as its sole argument."
 resulting file as its sole argument.
 
 If `filename` can be reduced, a file will be created by the name
-\"output-minimal\". The solution will not in general be a global
+`*minimal-output-name*`. The solution will not in general be a global
 minimum. It will satisfy the condition of 1-minimility, i.e. that no
 different solution can be found by removing a single line."
   (read-file filename)

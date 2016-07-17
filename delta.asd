@@ -1,4 +1,4 @@
 (asdf:defsystem #:delta
   :serial t
-  :depends-on (#:external-program #:uiop)
+  :depends-on (#:uiop)
   :components ((:file "delta")))

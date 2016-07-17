@@ -42,10 +42,9 @@ as strings to the array `*file-contents*`."
   "Run the script `*script-name*` on the subset of `*file-contents*`
 represented by the index list `indices`."
   (indices->file indices)
-  (multiple-value-bind (status return-code)
-      (external-program:run *script-name* (list *output-name*))
-    (declare (ignore status))
-    (= 0 return-code)))
+  (null (handler-case
+            (uiop:run-program (list *script-name* *output-name*))
+          (uiop/run-program:subprocess-error () 'script-failed))))
 
 (defun compute-break (length part numparts)
   "Compute mark at which chunk #`part` begins when a list of length

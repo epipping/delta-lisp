@@ -84,17 +84,20 @@ If no chunk passes, nil is returned."
           (return complement))))
 
 (defun ddmin (indices old-numparts)
-  (let ((passing-subset (test-removal indices old-numparts)))
+  (let* ((passing-subset (test-removal indices old-numparts))
+         (subset-length (length passing-subset))
+         (numindices (length indices)))
     (cond
-      (passing-subset
+      ;; Keep granularity. Try other complements from the same division.
+      ((> subset-length 1)
        (ddmin passing-subset (max (1- old-numparts) 2)))
-      ;; check if increasing granularity makes sense
-      ((< old-numparts (length indices))
-       (let ((new-numparts (min (length indices) (* 2 old-numparts))))
+      ;; Increase granularity.
+      ((and (zerop subset-length) (< old-numparts numindices))
+       (let ((new-numparts (min numindices (* 2 old-numparts))))
          (format t "Increasing granularity. Number of segments now: ~a.~%"
                  new-numparts)
          (ddmin indices new-numparts)))
-      ;; done: found a 1-minimal subset
+      ;; Done.
       (t indices))))
 
 (defun delta (indices)

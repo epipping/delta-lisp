@@ -55,11 +55,12 @@ size."
 (defun exclude-range (first last list)
   "Remove range of indices from `first` to `last` from list
 `list`. The range is taken is left-inclusive and right-exclusive."
-  (if (> first 0)
-      (cons (car list) (exclude-range (1- first) (1- last) (cdr list)))
-      (if (> last 0)
-          (exclude-range first (1- last) (cdr list))
-          list)))
+  (cond
+    ((plusp first)
+     (cons (car list) (exclude-range (1- first) (1- last) (cdr list))))
+    ((plusp last)
+     (exclude-range first (1- last) (cdr list)))
+    (t list)))
 
 (defun test-removal (indices numparts)
   "Check if removing certain subsets of `indices` yields a reduction.

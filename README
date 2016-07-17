@@ -6,13 +6,12 @@ complements. Both this implementation and the one from [1] skip the
 subset step.
 
 Any common lisp compiler should do but only sbcl has been
-tested. There are two external dependencies:
+tested. There is one external dependency
 
- * osicat: http://common-lisp.net/project/osicat/
  * external-program: http://common-lisp.net/project/external-program/
 
-Both libraries are available via quicklisp[3] and will be
-automatically installed if `make run-delta-ql` is used (see below).
+which is available via quicklisp[3] and will be automatically
+installed if `make run-delta-ql` is used (see below).
 
 A sample makefile is provided that allows to switch back and forth
 between multiple implementations of delta for testing purposes, namely

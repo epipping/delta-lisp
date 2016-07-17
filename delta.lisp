@@ -80,7 +80,7 @@ If no chunk passes, nil is returned."
      for complement = (exclude-range begin end indices)
      do (when (subset-passed complement)
           (format t "Reduced to ~a lines.~%" (length complement))
-          (osicat-posix:rename *output-name* *minimal-output-name*)
+          (uiop:rename-file-overwriting-target *output-name* *minimal-output-name*)
           (return complement))))
 
 (defun ddmin (indices old-numparts)

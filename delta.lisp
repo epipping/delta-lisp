@@ -74,9 +74,8 @@ If no chunk passes, nil is returned."
                                       ;; FIXME: This might be slow
                                       (list (nth n indices))))
                               (loop for n from 0 below (length indices) collect n))
-     do (when (and (< (length complement) (length indices))
-                   (subset-passed complement))
-          (format t "Reduced to ~a lines (from ~a).~%" (length complement) (length indices))
+     do (when (subset-passed complement)
+          (format t "Reduced to ~a lines.~%" (length complement))
           (osicat-posix:rename *output-name* *minimal-output-name*)
           (return complement))))
 

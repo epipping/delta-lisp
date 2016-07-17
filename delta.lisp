@@ -117,5 +117,6 @@ different solution can be found by removing a single line."
   (read-file filename)
   (setf *script-name* script-name)
   (let ((minimal-subset (delta
-                         (loop for index from 0 below *number-of-lines* collect index))))
+                         (loop for index from 0 below *number-of-lines*
+                            collect index))))
     (indices->file minimal-subset)))

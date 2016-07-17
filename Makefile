@@ -1,6 +1,10 @@
 INPUT  ?= ${PWD}/input
 SCRIPT ?= ${PWD}/test.sh
 
+.PHONY: all
+all:
+	@echo Please read the README.
+
 .PHONY: run-delta-perl
 run-delta-perl:
 	@delta -test=${SCRIPT} ${INPUT}

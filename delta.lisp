@@ -84,7 +84,7 @@ If no chunk passes, nil is returned."
           (uiop:rename-file-overwriting-target *output-name* *minimal-output-name*)
           (return (values complement i)))))
 
-(defun ddmin (indices numparts &optional (initial-part 0) (final-part numparts))
+(defun ddmin (indices numparts &key (initial-part 0) (final-part numparts))
   (multiple-value-bind (passing-subset removed-part)
       (test-removal indices numparts initial-part final-part)
     (let* ((subset-length (length passing-subset))
@@ -93,10 +93,10 @@ If no chunk passes, nil is returned."
         ;; Keep granularity. Try subsequent complements
         ((> subset-length 1)
          (ddmin passing-subset (max (1- numparts) 2)
-                removed-part (1- numparts)))
+                :initial-part removed-part :final-part (1- numparts)))
         ;; Keep granularity. Try preceding complements
         ((plusp initial-part)
-         (ddmin indices numparts 0 initial-part))
+         (ddmin indices numparts :final-part initial-part))
         ;; Increase granularity.
         ((and (zerop subset-length) (< numparts numindices))
          (let ((new-numparts (min numindices (* 2 numparts))))

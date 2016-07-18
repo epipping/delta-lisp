@@ -9,10 +9,10 @@
 ;; TODO: parallelise subset-passed invocations
 
 (defvar *script-name*)
-(defvar *output-name* "output")
 (defvar *minimal-output-name* "output-minimal")
 (defvar *file-contents*)
 (defvar *number-of-lines*)
+(defvar *extension*)
 
 (defun read-file (filename)
   "Split the file given by `filename` by newline and append the lines
@@ -41,10 +41,15 @@ as strings to the array `*file-contents*`."
 (defun subset-passed (indices)
   "Run the script `*script-name*` on the subset of `*file-contents*`
 represented by the index list `indices`."
-  (indices->file indices *output-name*)
-  (null (handler-case
-            (uiop:run-program (list *script-name* *output-name*))
-          (uiop/run-program:subprocess-error () 'script-failed))))
+  (uiop/stream:with-temporary-file (:pathname p
+                                    :prefix "delta"
+                                    :direction :output
+                                    :element-type 'character
+                                    :type *extension*)
+    (indices->file indices p)
+    (null (handler-case
+              (uiop:run-program (list *script-name* (namestring p)))
+            (uiop/run-program:subprocess-error () 'script-failed)))))
 
 (defun compute-break (length part numparts)
   "Compute mark at which chunk #`part` begins when a list of length
@@ -119,7 +124,11 @@ when a file consisting of that subset is passed as its sole argument."
     (error "Initial input does not satisfy the predicate"))
   (ddmin indices 2))
 
-(defun delta-file (filename script-name)
+(defun delta-file (filename script-name
+                   &optional (extension (multiple-value-bind (name type)
+                                            (uiop/pathname:split-name-type
+                                             (file-namestring filename))
+                                          type)))
   "Minimise the file given by `filename` under the constraint that
 `script-name` should continue to return 0 when passed the name of the
 resulting file as its sole argument.
@@ -130,6 +139,7 @@ minimum. It will satisfy the condition of 1-minimility, i.e. that no
 different solution can be found by removing a single line."
   (read-file filename)
   (setf *script-name* script-name)
+  (setf *extension* extension)
   (delta
    (loop for index from 0 below *number-of-lines*
       collect index)))

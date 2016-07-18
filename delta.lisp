@@ -50,7 +50,7 @@ represented by the index list `indices`."
   "Compute mark at which chunk #`part` begins when a list of length
 `length` is divided into `numparts`-many chunks of (roughly) equal
 size."
-  (floor (* part (/ length numparts))))
+  (floor (* part length) numparts))
 
 (defun exclude-range (first last list)
   "Remove range of indices from `first` to `last` from list

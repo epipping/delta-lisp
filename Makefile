@@ -1,6 +1,8 @@
 INPUT  ?= ${PWD}/input
 SCRIPT ?= ${PWD}/test.sh
 
+PROCESSES ?= 1
+
 .PHONY: all
 all:
 	@echo Please read the README.
@@ -14,12 +16,12 @@ run-delta-lisp:
 	@sbcl --non-interactive \
 	 --eval '(push (uiop:ensure-absolute-pathname *default-pathname-defaults*) asdf:*central-registry*)' \
 	 --eval '(ql:quickload "delta")' \
-	 --eval "(time (delta:delta-file \"${INPUT}\" \"${SCRIPT}\"))" \
+	 --eval "(time (delta:delta-file \"${INPUT}\" \"${SCRIPT}\" :processes ${PROCESSES}))" \
 	 --quit
 
 .PHONY: run-delta-lisp-standalone
 run-delta-lisp-standalone: delta-lisp-standalone
-	@./delta-lisp-standalone $(INPUT) $(SCRIPT)
+	@time ./delta-lisp-standalone $(INPUT) $(SCRIPT) $(PROCESSES)
 
 buildapp:
 	@sbcl \
@@ -40,7 +42,7 @@ delta-lisp-standalone: buildapp quicklisp-manifest.txt delta.lisp
 	 --asdf-path . \
 	 --load-system delta \
 	 --eval '(sb-ext:disable-debugger)' \
-	 --eval '(defun main (argv) (delta:delta-file (second argv) (third argv)))' \
+	 --eval '(defun main (argv) (delta:delta-file (second argv) (third argv) :processes (parse-integer (fourth argv))))' \
 	 --entry main \
 	 --output $@
 

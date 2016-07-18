@@ -62,7 +62,7 @@ size."
      (exclude-range first (1- last) (cdr list)))
     (t list)))
 
-(defun test-removal (indices numparts)
+(defun test-removal (indices numparts initial-part final-part)
   "Check if removing certain subsets of `indices` yields a reduction.
 
 The parameter `indices` should be a subset of `*file-contents*`,
@@ -72,33 +72,41 @@ complement with respect to the subset will be tested. The first one
 that makes `*script-name*` pass will be returned.
 
 If no chunk passes, nil is returned."
-  (loop for i from 0 below numparts
+  (loop for i from initial-part below final-part
      ;; Relative to the subset, where chunk #i begins/ends
      for begin = (compute-break (length indices) i numparts) then end
      and end = (compute-break (length indices) (1+ i) numparts)
      ;; Remove a chunk
      for complement = (exclude-range begin end indices)
      do (when (subset-passed complement)
-          (format t "Reduced to ~a lines.~%" (length complement))
+          (format t "Lines: ~a. Segments: ~a.~%"
+                  (length complement) (1- numparts))
           (uiop:rename-file-overwriting-target *output-name* *minimal-output-name*)
-          (return complement))))
+          (return (values complement i)))))
 
-(defun ddmin (indices old-numparts)
-  (let* ((passing-subset (test-removal indices old-numparts))
-         (subset-length (length passing-subset))
-         (numindices (length indices)))
-    (cond
-      ;; Keep granularity. Try other complements from the same division.
-      ((> subset-length 1)
-       (ddmin passing-subset (max (1- old-numparts) 2)))
-      ;; Increase granularity.
-      ((and (zerop subset-length) (< old-numparts numindices))
-       (let ((new-numparts (min numindices (* 2 old-numparts))))
-         (format t "Increasing granularity. Number of segments now: ~a.~%"
-                 new-numparts)
-         (ddmin indices new-numparts)))
-      ;; Done.
-      (t indices))))
+(defun ddmin (indices numparts &optional (initial-part 0) (final-part numparts))
+  (multiple-value-bind (passing-subset removed-part)
+      (test-removal indices numparts initial-part final-part)
+    (let* ((subset-length (length passing-subset))
+           (numindices (length indices)))
+      (cond
+        ;; Keep granularity. Try subsequent complements
+        ((> subset-length 1)
+         (ddmin passing-subset (max (1- numparts) 2)
+                removed-part (1- numparts)))
+        ;; Keep granularity. Try preceding complements
+        ((plusp initial-part)
+         (ddmin indices numparts 0 initial-part))
+        ;; Increase granularity.
+        ((and (zerop subset-length) (< numparts numindices))
+         (let ((new-numparts (min numindices (* 2 numparts))))
+           (format t "Lines: ~a. Segments: ~a (granularity increased).~%"
+                   numindices new-numparts)
+           (ddmin indices new-numparts)))
+        ;; Done: Cannot partition single-line input
+        ((= subset-length 1) passing-subset)
+        ;; Done: Unable to remove any subset of size 1.
+        (t indices)))))
 
 (defun delta (indices)
   "Minimise a subset of `*file-contents*` represented by the index

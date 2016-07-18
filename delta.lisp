@@ -30,10 +30,10 @@ as strings to the array `*file-contents*`."
   (loop for index in indices
      do (format stream "~a~%" (aref *file-contents* index))))
 
-(defun indices->file (indices)
+(defun indices->file (indices filename)
   "Write the subset of `*file-contents*` represented by the index list
   `indices` to the file \"output\"."
-  (with-open-file (stream *output-name*
+  (with-open-file (stream filename
                           :direction :output
                           :if-exists :supersede)
     (write-from-indices indices stream)))
@@ -41,7 +41,7 @@ as strings to the array `*file-contents*`."
 (defun subset-passed (indices)
   "Run the script `*script-name*` on the subset of `*file-contents*`
 represented by the index list `indices`."
-  (indices->file indices)
+  (indices->file indices *output-name*)
   (null (handler-case
             (uiop:run-program (list *script-name* *output-name*))
           (uiop/run-program:subprocess-error () 'script-failed))))
@@ -73,16 +73,18 @@ that makes `*script-name*` pass will be returned.
 
 If no chunk passes, nil is returned."
   (loop for i from initial-part below final-part
-     ;; Relative to the subset, where chunk #i begins/ends
-     for begin = (compute-break (length indices) i numparts) then end
-     and end = (compute-break (length indices) (1+ i) numparts)
-     ;; Remove a chunk
-     for complement = (exclude-range begin end indices)
-     do (when (subset-passed complement)
+     for complement = (test-removal-helper indices numparts i)
+     do (when complement
           (format t "Lines: ~a. Segments: ~a.~%"
                   (length complement) (1- numparts))
-          (uiop:rename-file-overwriting-target *output-name* *minimal-output-name*)
+          (indices->file complement *minimal-output-name*)
           (return (values complement i)))))
+
+(defun test-removal-helper (indices numparts part)
+  (let* ((begin (compute-break (length indices) part numparts))
+         (end (compute-break (length indices) (1+ part) numparts))
+         (complement (exclude-range begin end indices)))
+    (and (subset-passed complement) complement)))
 
 (defun ddmin (indices numparts &key (initial-part 0) (final-part numparts))
   (multiple-value-bind (passing-subset removed-part)
@@ -112,7 +114,7 @@ If no chunk passes, nil is returned."
   "Minimise a subset of `*file-contents*` represented by the index
 list `indices` under the constraint that `*script-name*` returns 0
 when a file consisting of that subset is passed as its sole argument."
-  (format t "Starting with ~a lines~%" *number-of-lines*)
+  (format t "Starting with ~a lines.~%" *number-of-lines*)
   (unless (subset-passed indices)
     (error "Initial input does not satisfy the predicate"))
   (ddmin indices 2))
@@ -128,7 +130,6 @@ minimum. It will satisfy the condition of 1-minimility, i.e. that no
 different solution can be found by removing a single line."
   (read-file filename)
   (setf *script-name* script-name)
-  (let ((minimal-subset (delta
-                         (loop for index from 0 below *number-of-lines*
-                            collect index))))
-    (indices->file minimal-subset)))
+  (delta
+   (loop for index from 0 below *number-of-lines*
+      collect index)))

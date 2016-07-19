@@ -30,8 +30,8 @@ the makefile variables INPUT and SCRIPT as in
 The makefile is convenient for testing but by no means necessary in
 order to use delta-lisp (and thus neither is quicklisp).
 
-Each test consists of an input file named input and a script named
-test.sh and resides in a separate subdirectory.
+Each test consists of an input file and a test script that returns
+either 0 (to signal success) or anything else (to signal failure).
 
 [1] http://delta.tigris.org/
 [2] http://www.st.cs.uni-saarland.de/papers/tse2002/

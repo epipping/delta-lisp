@@ -13,22 +13,22 @@ because quicklisp[3] comes with it.
 A sample makefile is provided that allows to switch back and forth
 between multiple implementations of delta for testing purposes, namely
 the common lisp implementation described herein and the one from [1]
-(in perl).
+(in perl). It assumes quicklisp to be installed in ~/quicklisp.
 
 In particular, with a shell inside a clone of this repository, as well
 as sbcl and quicklisp installed, one can run
 
-  make run-delta-ql
+  make run-delta-lisp
 
 to compile the delta-lisp tool and use it to reduce the file ./input
 under the constraint that ./test.sh returns zero. Where delta takes
 its input and predicate from can be set on the command line or through
 the makefile variables INPUT and SCRIPT as in
 
-  make run-delta-ql INPUT=test-silly/input SCRIPT=test-silly/test.sh
+  make run-delta-lisp INPUT=test-silly/input SCRIPT=test-silly/test.sh
 
 The makefile is convenient for testing but by no means necessary in
-order to use delta-lisp.
+order to use delta-lisp (and thus neither is quicklisp).
 
 Each test consists of an input file named input and a script named
 test.sh and resides in a separate subdirectory.

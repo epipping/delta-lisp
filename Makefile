@@ -7,27 +7,43 @@ all:
 
 .PHONY: run-delta-perl
 run-delta-perl:
-	@delta -test=${SCRIPT} ${INPUT}
+	@time delta -quiet -test=${SCRIPT} ${INPUT}
 
-.PHONY: run-delta-ql
-run-delta-ql:
-	@sbcl \
-	 --disable-debugger \
+.PHONY: run-delta-lisp
+run-delta-lisp:
+	@sbcl --non-interactive \
 	 --eval '(push (uiop:ensure-absolute-pathname *default-pathname-defaults*) asdf:*central-registry*)' \
 	 --eval '(ql:quickload "delta")' \
 	 --eval "(time (delta:delta-file \"${INPUT}\" \"${SCRIPT}\"))" \
-	 --eval '(quit)'
+	 --quit
 
-.PHONY: run-delta-asdf
-run-delta-asdf:
+.PHONY: run-delta-lisp-standalone
+run-delta-lisp-standalone: delta-lisp-standalone
+	@./delta-lisp-standalone $(INPUT) $(SCRIPT)
+
+buildapp:
 	@sbcl \
 	 --disable-debugger \
-	 --eval '(require :asdf)' \
+	 --eval '(ql:quickload "buildapp")' \
+	 --eval '(buildapp:build-buildapp)' --quit >/dev/null
+
+quicklisp-manifest.txt: delta.asd
+	@sbcl --no-userinit --no-sysinit --non-interactive \
+	 --load ~/quicklisp/setup.lisp \
 	 --eval '(push (uiop:ensure-absolute-pathname *default-pathname-defaults*) asdf:*central-registry*)' \
-	 --eval '(asdf:load-system :delta)' \
-	 --eval "(time (delta:delta-file \"${INPUT}\" \"${SCRIPT}\"))" \
-	 --eval '(quit)'
+	 --eval '(ql:quickload "delta")' \
+	 --eval '(ql:write-asdf-manifest-file "quicklisp-manifest.txt")'
+
+delta-lisp-standalone: buildapp quicklisp-manifest.txt delta.lisp
+	@./buildapp \
+	 --manifest-file quicklisp-manifest.txt \
+	 --asdf-path . \
+	 --load-system delta \
+	 --eval '(sb-ext:disable-debugger)' \
+	 --eval '(defun main (argv) (delta:delta-file (second argv) (third argv)))' \
+	 --entry main \
+	 --output $@
 
 .PHONY: clean
 clean:
-	@rm -rf output output-minimal
+	@rm -rf output output-minimal quicklisp-manifest.txt delta-lisp-standalone buildapp

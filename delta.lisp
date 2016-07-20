@@ -1,10 +1,5 @@
 ;; -*- mode:common-lisp; indent-tabs-mode: nil -*-
 
-(defpackage #:delta
-  (:export #:delta-file)
-  (:use #:cl)
-  (:use #:iterate))
-
 (in-package #:delta)
 
 (defvar *max-processes*)
@@ -14,7 +9,6 @@
 (defvar *number-of-lines* 0)
 (defvar *extension*)
 
-(defconstant *kill-signal* 15)
 (defconstant *sleep-between-checks* 1e-4)
 
 (defun read-file (filename)
@@ -119,17 +113,6 @@ If no chunk passes, nil is returned."
          ;; Sleep
          (sleep *sleep-between-checks*))))
 
-(defclass status-and-return ()
-    ((status :initarg :status)
-     (return-value :initarg :return-value)))
-
-(defun inspect-process (process)
-  (multiple-value-bind (status return-value)
-      (external-program:process-status process)
-    (make-instance 'status-and-return
-                   :status status
-                   :return-value return-value)))
-
 (defun run-on-subset (indices)
     (uiop/stream:with-temporary-file (:pathname p
                                       :prefix "delta"
@@ -173,13 +156,6 @@ If no chunk passes, nil is returned."
       ((= subset-length 1) passing-subset)
       ;; Done: Unable to remove any subset of size 1.
       (t indices))))
-
-(defun wait-for-process (process)
-  ;; Functionality missing from external-program (2016/07/20)
-  ;; See also https://github.com/sellout/external-program/issues/30
-  #+clozure (ccl::external-process-wait process)
-  #+(or cmu scl) (ext:process-wait process)
-  #+sbcl (sb-ext:process-wait process))
 
 (defun delta (indices)
   "Minimise a subset of `*file-contents*` represented by the index

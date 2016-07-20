@@ -9,6 +9,8 @@ SBCL      ?= sbcl
 DELTA_PERL       ?= delta
 DELTA_PERL_FLAGS ?= -quiet -cp_minimal=output-minimal-perl
 
+LISP_FILES = delta.lisp processes.lisp
+
 .PHONY: all
 all:
 	@echo Please read the README.
@@ -42,7 +44,7 @@ quicklisp-manifest.txt: delta.asd
 	 --eval '(ql:quickload "delta")' \
 	 --eval '(ql:write-asdf-manifest-file "quicklisp-manifest.txt")'
 
-delta-lisp-standalone: buildapp quicklisp-manifest.txt delta.lisp
+delta-lisp-standalone: buildapp quicklisp-manifest.txt $(LISP_FILES) main.lisp
 	@./buildapp \
 	 --manifest-file quicklisp-manifest.txt \
 	 --asdf-path . \

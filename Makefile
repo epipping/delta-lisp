@@ -1,7 +1,13 @@
 INPUT  ?= ${PWD}/input
 SCRIPT ?= ${PWD}/test.sh
 
+# For lisp
 PROCESSES ?= 1
+SBCL      ?= sbcl
+
+# For perl
+DELTA_PERL       ?= delta
+DELTA_PERL_FLAGS ?= -quiet -cp_minimal=output-minimal-perl
 
 .PHONY: all
 all:
@@ -9,11 +15,11 @@ all:
 
 .PHONY: run-delta-perl
 run-delta-perl:
-	@time delta -quiet -test=${SCRIPT} ${INPUT}
+	@time $(DELTA_PERL) $(DELTA_PERL_FLAGS) -test=${SCRIPT} ${INPUT}
 
 .PHONY: run-delta-lisp
 run-delta-lisp:
-	@sbcl --non-interactive \
+	@$(SBCL) --non-interactive \
 	 --eval '(push (uiop:ensure-absolute-pathname *default-pathname-defaults*) asdf:*central-registry*)' \
 	 --eval '(ql:quickload "delta")' \
 	 --eval "(time (delta:delta-file \"${INPUT}\" \"${SCRIPT}\" :processes ${PROCESSES}))" \
@@ -24,13 +30,13 @@ run-delta-lisp-standalone: delta-lisp-standalone
 	@time ./delta-lisp-standalone $(INPUT) $(SCRIPT) $(PROCESSES)
 
 buildapp:
-	@sbcl \
+	@$(SBCL) \
 	 --disable-debugger \
 	 --eval '(ql:quickload "buildapp")' \
 	 --eval '(buildapp:build-buildapp)' --quit >/dev/null
 
 quicklisp-manifest.txt: delta.asd
-	@sbcl --no-userinit --no-sysinit --non-interactive \
+	@$(SBCL) --no-userinit --no-sysinit --non-interactive \
 	 --load ~/quicklisp/setup.lisp \
 	 --eval '(push (uiop:ensure-absolute-pathname *default-pathname-defaults*) asdf:*central-registry*)' \
 	 --eval '(ql:quickload "delta")' \

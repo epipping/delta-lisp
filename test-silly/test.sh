@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-n=100
+n=150
 for ((i=1; i<n; ++i)); do
     [[ $i -eq 3 || $i -eq 7 || $i -eq 93 ]] && continue
     # Intentionally slow (quadratic in n)

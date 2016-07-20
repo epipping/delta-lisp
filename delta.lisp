@@ -174,23 +174,26 @@ If no chunk passes, nil is returned."
       ;; Done: Unable to remove any subset of size 1.
       (t indices))))
 
+(defun wait-for-process (process)
+  ;; Functionality missing from external-program (2016/07/20)
+  ;; See also https://github.com/sellout/external-program/issues/30
+  #+clozure (ccl::external-process-wait process)
+  #+(or cmu scl) (ext:process-wait process)
+  #+sbcl (sb-ext:process-wait process))
+
 (defun delta (indices)
   "Minimise a subset of `*file-contents*` represented by the index
 list `indices` under the constraint that `*script-name*` returns 0
 when a file consisting of that subset is passed as its sole argument."
   (format t "Lines: ~a. Segments: ~a.~%"
           (length indices) 1)
-  (iter
-   (with process = (run-on-subset indices))
-   (for status-and-return = (inspect-process process))
-   (for status = (slot-value status-and-return 'status))
-   (for return-value = (slot-value status-and-return 'return-value))
-   (after-each (cond
-                 ((and (eq status :exited) (eq return-value 0))
-                  (leave))
-                 ((eq status :exited)
-                  (error "Initial input does not satisfy the predicate"))
-                 (t (sleep *sleep-between-checks*)))))
+  (let ((process (run-on-subset indices)))
+    (wait-for-process process)
+    (let* ((status-and-return (inspect-process process))
+           (status (slot-value status-and-return 'status))
+           (return-value (slot-value status-and-return 'return-value)))
+      (unless (eq return-value 0)
+        (error "Initial input does not satisfy the predicate"))))
   (format t "Lines: ~a. Segments: ~a (granularity increased).~%"
           (length indices) 2)
   (ddmin indices 2))

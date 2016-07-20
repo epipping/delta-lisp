@@ -63,7 +63,10 @@ size."
     ((process :initarg :process)
      (result :initarg :result)))
 
-(defun test-removal (indices numparts initial-part final-part)
+(defun shift-and-wrap (part shift numparts)
+  (mod (+ part shift) numparts))
+
+(defun test-removal (indices numparts initial-part)
   "Check if removing certain subsets of `indices` yields a reduction.
 
 The parameter `indices` should be a subset of `*file-contents*`,
@@ -75,12 +78,14 @@ that makes `*script-name*` pass will be returned.
 If no chunk passes, nil is returned."
   (iter reducing
         (with pwr-list)
-        (with part = initial-part)
+        (with part = 0)
         (after-each
          ;; Fill process list
-         (iter (until (or (>= part final-part)
+         (iter (until (or (>= part numparts)
                           (>= (length pwr-list) *max-processes*)))
-               (after-each (push (test-removal-helper indices numparts part)
+               (after-each (push (test-removal-helper indices numparts
+                                                      :relative-part part
+                                                      :shift-by initial-part)
                                  pwr-list)
                            (incf part)))
          ;; Check if a process has terminated
@@ -108,7 +113,7 @@ If no chunk passes, nil is returned."
                     ;; Otherwise: Treat the reduction as a failure
                     (t (setf pwr-list (remove pwr pwr-list)))))))
          ;; Return a dummy to signal overall reduction failure.
-         (when (and (>= part final-part)
+         (when (and (>= part numparts)
                     (zerop (length pwr-list)))
            (return-from reducing (make-instance 'reduction)))
          ;; Sleep
@@ -136,8 +141,9 @@ If no chunk passes, nil is returned."
       (external-program:start *script-name*
                               (list (namestring p)))))
 
-(defun test-removal-helper (indices numparts part)
-  (let* ((begin (compute-break (length indices) part numparts))
+(defun test-removal-helper (indices numparts &key relative-part shift-by)
+  (let* ((part (shift-and-wrap relative-part shift-by numparts))
+         (begin (compute-break (length indices) part numparts))
          (end (compute-break (length indices) (1+ part) numparts))
          (complement (exclude-range begin end indices)))
     (make-instance 'process-with-result
@@ -146,20 +152,17 @@ If no chunk passes, nil is returned."
                                           :part part
                                           :complement complement))))
 
-(defun ddmin (indices numparts &key (initial-part 0) (final-part numparts))
-  (let* ((reduction (test-removal indices numparts initial-part final-part))
+(defun ddmin (indices numparts &key (initial-part 0))
+  (let* ((reduction (test-removal indices numparts initial-part))
          (passing-subset (slot-value reduction 'complement))
          (removed-part (slot-value reduction 'part))
          (subset-length (length passing-subset))
          (numindices (length indices)))
     (cond
-      ;; Keep granularity. Try subsequent complements
+      ;; Keep granularity. Try subsequent complements (wraps around)
       ((> subset-length 1)
        (ddmin passing-subset (max (1- numparts) 2)
-              :initial-part removed-part :final-part (1- numparts)))
-      ;; Keep granularity. Try preceding complements
-      ((plusp initial-part)
-       (ddmin indices numparts :final-part initial-part))
+              :initial-part removed-part))
       ;; Increase granularity.
       ((and (zerop subset-length) (< numparts numindices))
        (let ((new-numparts (min numindices (* 2 numparts))))

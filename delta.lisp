@@ -112,12 +112,12 @@ If no chunk passes, nil is returned."
          (sleep +sleep-between-checks+))))
 
 (defun run-on-subset (indices)
-    (uiop/stream:with-temporary-file (:pathname p
-                                      :prefix "delta"
-                                      :direction :output
-                                      :keep t
-                                      :element-type 'character
-                                      :type *suffix*)
+    (uiop:with-temporary-file (:pathname p
+                               :prefix "delta"
+                               :direction :output
+                               :keep t
+                               :element-type 'character
+                               :type *suffix*)
       (indices->file indices p)
       (external-program:start *script-name*
                               (list (namestring p)))))
@@ -174,7 +174,7 @@ when a file consisting of that subset is passed as its sole argument."
 (defun delta-file (script-name filename
                    &key
                      (suffix (multiple-value-bind (name type)
-                                 (uiop/pathname:split-name-type
+                                 (uiop:split-name-type
                                   (file-namestring filename))
                                (declare (ignore name))
                                type))

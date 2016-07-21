@@ -44,4 +44,6 @@ delta-standalone: $(LISP_FILES) main.lisp
 
 .PHONY: clean
 clean:
-	@rm -rf output output-minimal quicklisp-manifest.txt delta-standalone *.fasl
+	@rm -rf \
+	 output output-minimal output-minimal-perl \
+	 delta-standalone *.fasl tmp*

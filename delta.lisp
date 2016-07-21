@@ -95,9 +95,7 @@ If no chunk passes, nil is returned."
                     ;; Successful exit: Kill everyone and return
                     ((= return-value 0)
                      (iter (for p in pwr-list)
-                           (after-each (external-program:signal-process
-                                        (slot-value p 'process)
-                                        *kill-signal*)))
+                           (after-each (terminate-process (slot-value p 'process))))
                      (let* ((reduction (slot-value pwr 'result))
                             (complement (slot-value reduction 'complement)))
                        (format t "Lines: ~a. Segments: ~a.~%"

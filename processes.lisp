@@ -2,11 +2,14 @@
 
 (in-package #:delta)
 
-(defconstant *kill-signal* 15)
+(defconstant *term-signal* 15)
 
 (defclass status-and-return ()
     ((status :initarg :status)
      (return-value :initarg :return-value)))
+
+(defun terminate-process (process)
+  (external-program:signal-process process *term-signal*))
 
 (defun inspect-process (process)
   (multiple-value-bind (status return-value)

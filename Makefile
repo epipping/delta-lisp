@@ -19,14 +19,6 @@ all:
 run-delta-perl:
 	@time $(DELTA_PERL) $(DELTA_PERL_FLAGS) -test=${SCRIPT} ${INPUT}
 
-.PHONY: run-delta-lisp
-run-delta-lisp:
-	@$(SBCL) --non-interactive \
-	 --eval '(push (uiop:ensure-absolute-pathname *default-pathname-defaults*) asdf:*central-registry*)' \
-	 --eval '(ql:quickload "delta")' \
-	 --eval "(time (delta:delta-file \"${SCRIPT}\" \"${INPUT}\" :processes ${PROCESSES}))" \
-	 --quit
-
 .PHONY: run-delta-lisp-standalone
 run-delta-lisp-standalone: delta-standalone
 	@time ./$< $(SCRIPT) $(INPUT) --processes=$(PROCESSES)

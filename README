@@ -6,9 +6,10 @@ complements. Both this implementation and the one from [1] skip the
 subset step.
 
 Any common lisp compiler should do but only sbcl has been
-tested. There is currently one external dependency,
+tested. There are currently two external dependencies,
 
   https://common-lisp.net/project/external-program/
+  https://common-lisp.net/project/iterate/
 
 which can be installed, e.g., through quicklisp[3]. UIOP is also used;
 since it is shipped alongside ASDF-3, it is not considered a real

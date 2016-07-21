@@ -27,8 +27,8 @@ install-dependencies-via-quicklisp: delta.asd
 	 --eval '(ql:quickload "delta-standalone")' \
 	 --quit
 
-.PHONY: run-delta-lisp-standalone
-run-delta-lisp-standalone: delta-standalone
+.PHONY: run-delta-lisp
+run-delta-lisp: delta-standalone
 	@time ./$< $(SCRIPT) $(INPUT) $(FLAGS)
 
 delta-standalone: $(LISP_FILES) main.lisp

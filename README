@@ -25,14 +25,14 @@ switching between multiple implementations of delta, namely the common
 lisp implementation described herein and the one from [1] (in
 perl). With a shell inside a clone of this repository and sbcl installed
 
-  make run-delta-lisp-standalone
+  make run-delta-lisp
 
 can be used to to compile the delta-lisp tool and use it to reduce the
 file ./input under the constraint that ./test.sh returns zero. Where
 delta takes its input and predicate from can be set on the command
 line or through the makefile variables INPUT and SCRIPT as in
 
-  make run-delta-lisp-standalone \
+  make run-delta-lisp \
     INPUT=test-silly/input \
     SCRIPT=test-silly/test.sh \
     FLAGS='--processes=4'

@@ -13,24 +13,24 @@ tested. There are currently four external dependencies,
   https://github.com/tpapp/let-plus
   https://github.com/keithj/getopt
 
-which can be installed, e.g., through quicklisp[3]. UIOP is also used;
-since it is shipped alongside ASDF-3, it is not considered a real
-dependency, however.
+which can be installed, e.g., through quicklisp[3] via
+
+  make install-dependencies-via-quicklisp
+
+assuming that sbcl installed. UIOP is also used; since it is shipped
+alongside ASDF-3, it is not considered a real dependency, however.
 
 A sample makefile is provided that allows for easy back-and-forth
 switching between multiple implementations of delta, namely the common
 lisp implementation described herein and the one from [1] (in
-perl). It assumes quicklisp to be installed in ~/quicklisp.
-
-With a shell inside a clone of this repository, as well as sbcl and
-quicklisp installed, one can run
+perl). With a shell inside a clone of this repository and sbcl installed
 
   make run-delta-lisp-standalone
 
-to compile the delta-lisp tool and use it to reduce the file ./input
-under the constraint that ./test.sh returns zero. Where delta takes
-its input and predicate from can be set on the command line or through
-the makefile variables INPUT and SCRIPT as in
+can be used to to compile the delta-lisp tool and use it to reduce the
+file ./input under the constraint that ./test.sh returns zero. Where
+delta takes its input and predicate from can be set on the command
+line or through the makefile variables INPUT and SCRIPT as in
 
   make run-delta-lisp-standalone \
     INPUT=test-silly/input \

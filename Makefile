@@ -20,15 +20,18 @@ all:
 run-delta-perl:
 	@time $(DELTA_PERL) $(DELTA_PERL_FLAGS) -test=${SCRIPT} ${INPUT}
 
+.PHONY: install-dependencies-via-quicklisp
+install-dependencies-via-quicklisp: delta.asd
+	sbcl \
+	 --eval '(push (uiop:ensure-absolute-pathname *default-pathname-defaults*) asdf:*central-registry*)' \
+	 --eval '(ql:quickload "delta-standalone")' \
+	 --quit
+
 .PHONY: run-delta-lisp-standalone
 run-delta-lisp-standalone: delta-standalone
 	@time ./$< $(SCRIPT) $(INPUT) $(FLAGS)
 
 delta-standalone: $(LISP_FILES) main.lisp
-	@echo To install missing dependencies, consider installing quicklisp and running
-	@echo "$(SBCL) \\"
-	@echo "  --eval '(push (uiop:ensure-absolute-pathname *default-pathname-defaults*) asdf:*central-registry*)' \\"
-	@echo "  --eval '(ql:quickload \"delta-standalone\")' --quit"
 	@$(SBCL) --non-interactive \
 	 --eval '(push (uiop:ensure-absolute-pathname *default-pathname-defaults*) asdf:*central-registry*)' \
 	 --eval '(asdf:disable-output-translations)' \

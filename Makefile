@@ -28,32 +28,20 @@ run-delta-lisp:
 	 --quit
 
 .PHONY: run-delta-lisp-standalone
-run-delta-lisp-standalone: delta-lisp-standalone
-	@time ./delta-lisp-standalone $(SCRIPT) $(INPUT) --processes=$(PROCESSES)
+run-delta-lisp-standalone: delta-standalone
+	@time ./$< $(SCRIPT) $(INPUT) --processes=$(PROCESSES)
 
-buildapp:
-	@$(SBCL) \
-	 --disable-debugger \
-	 --eval '(ql:quickload "buildapp")' \
-	 --eval '(buildapp:build-buildapp)' --quit >/dev/null
-
-quicklisp-manifest.txt: delta.asd
-	@$(SBCL) --no-userinit --no-sysinit --non-interactive \
-	 --load ~/quicklisp/setup.lisp \
+delta-standalone: $(LISP_FILES) main.lisp
+	@echo To install missing dependencies, consider installing quicklisp and running
+	@echo "$(SBCL) \\"
+	@echo "  --eval '(push (uiop:ensure-absolute-pathname *default-pathname-defaults*) asdf:*central-registry*)' \\"
+	@echo "  --eval '(ql:quickload \"delta-standalone\")' --quit"
+	@$(SBCL) --non-interactive \
 	 --eval '(push (uiop:ensure-absolute-pathname *default-pathname-defaults*) asdf:*central-registry*)' \
-	 --eval '(ql:quickload "delta")' \
-	 --eval '(ql:write-asdf-manifest-file "quicklisp-manifest.txt")'
-
-delta-lisp-standalone: buildapp quicklisp-manifest.txt $(LISP_FILES) main.lisp
-	@./buildapp \
-	 --manifest-file quicklisp-manifest.txt \
-	 --asdf-path . \
-	 --load-system delta \
-	 --eval '(sb-ext:disable-debugger)' \
-	 --load main.lisp \
-	 --entry main \
-	 --output $@
+	 --eval '(asdf:disable-output-translations)' \
+	 --eval '(asdf:load-system :delta-standalone)' \
+	 --eval "(asdf:operate 'asdf:program-op :delta-standalone)" >/dev/null
 
 .PHONY: clean
 clean:
-	@rm -rf output output-minimal quicklisp-manifest.txt delta-lisp-standalone buildapp
+	@rm -rf output output-minimal quicklisp-manifest.txt delta-standalone *.fasl

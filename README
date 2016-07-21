@@ -12,6 +12,10 @@ tested. There are currently three external dependencies,
   https://common-lisp.net/project/iterate/
   https://github.com/tpapp/let-plus
 
+as well as, for the standalone executable only,
+
+  https://github.com/keithj/getopt
+
 which can be installed, e.g., through quicklisp[3]. UIOP is also used;
 since it is shipped alongside ASDF-3, it is not considered a real
 dependency, however.

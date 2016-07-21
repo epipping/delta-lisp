@@ -9,7 +9,7 @@
 (defvar *number-of-lines* 0)
 (defvar *suffix*)
 
-(defconstant *sleep-between-checks* 1e-4)
+(defconstant +sleep-between-checks+ 1e-4)
 
 (defun read-file (filename)
   "Split the file given by `filename` by newline and append the lines
@@ -109,7 +109,7 @@ If no chunk passes, nil is returned."
                     (zerop (length pwr-list)))
            (return-from reducing (make-instance 'reduction)))
          ;; Sleep
-         (sleep *sleep-between-checks*))))
+         (sleep +sleep-between-checks+))))
 
 (defun run-on-subset (indices)
     (uiop/stream:with-temporary-file (:pathname p
@@ -164,7 +164,6 @@ when a file consisting of that subset is passed as its sole argument."
   (let ((process (run-on-subset indices)))
     (wait-for-process process)
     (let* ((status-and-return (inspect-process process))
-           (status (slot-value status-and-return 'status))
            (return-value (slot-value status-and-return 'return-value)))
       (unless (eq return-value 0)
         (error "Initial input does not satisfy the predicate"))))
@@ -177,6 +176,7 @@ when a file consisting of that subset is passed as its sole argument."
                      (suffix (multiple-value-bind (name type)
                                  (uiop/pathname:split-name-type
                                   (file-namestring filename))
+                               (declare (ignore name))
                                type))
                      (processes 1))
   "Minimise the file given by `filename` under the constraint that

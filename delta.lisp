@@ -7,7 +7,7 @@
 (defvar *minimal-output-name* "output-minimal")
 (defvar *file-contents*)
 (defvar *number-of-lines* 0)
-(defvar *extension*)
+(defvar *suffix*)
 
 (defconstant *sleep-between-checks* 1e-4)
 
@@ -117,7 +117,7 @@ If no chunk passes, nil is returned."
                                       :direction :output
                                       :keep t
                                       :element-type 'character
-                                      :type *extension*)
+                                      :type *suffix*)
       (indices->file indices p)
       (external-program:start *script-name*
                               (list (namestring p)))))
@@ -172,12 +172,12 @@ when a file consisting of that subset is passed as its sole argument."
           (length indices) 2)
   (ddmin indices 2))
 
-(defun delta-file (filename script-name
+(defun delta-file (script-name filename
                    &key
-                     (extension (multiple-value-bind (name type)
-                                    (uiop/pathname:split-name-type
-                                     (file-namestring filename))
-                                  type))
+                     (suffix (multiple-value-bind (name type)
+                                 (uiop/pathname:split-name-type
+                                  (file-namestring filename))
+                               type))
                      (processes 1))
   "Minimise the file given by `filename` under the constraint that
 `script-name` should continue to return 0 when passed the name of the
@@ -190,6 +190,6 @@ different solution can be found by removing a single line."
   (read-file filename)
   (setf *max-processes* processes)
   (setf *script-name* script-name)
-  (setf *extension* extension)
+  (setf *suffix* suffix)
   (delta (iter (for index from 0 below *number-of-lines*)
                (collect index))))

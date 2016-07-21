@@ -24,12 +24,12 @@ run-delta-lisp:
 	@$(SBCL) --non-interactive \
 	 --eval '(push (uiop:ensure-absolute-pathname *default-pathname-defaults*) asdf:*central-registry*)' \
 	 --eval '(ql:quickload "delta")' \
-	 --eval "(time (delta:delta-file \"${INPUT}\" \"${SCRIPT}\" :processes ${PROCESSES}))" \
+	 --eval "(time (delta:delta-file \"${SCRIPT}\" \"${INPUT}\" :processes ${PROCESSES}))" \
 	 --quit
 
 .PHONY: run-delta-lisp-standalone
 run-delta-lisp-standalone: delta-lisp-standalone
-	@time ./delta-lisp-standalone $(INPUT) $(SCRIPT) $(PROCESSES)
+	@time ./delta-lisp-standalone $(SCRIPT) $(INPUT) $(PROCESSES)
 
 buildapp:
 	@$(SBCL) \
@@ -50,7 +50,7 @@ delta-lisp-standalone: buildapp quicklisp-manifest.txt $(LISP_FILES) main.lisp
 	 --asdf-path . \
 	 --load-system delta \
 	 --eval '(sb-ext:disable-debugger)' \
-	 --eval '(defun main (argv) (delta:delta-file (second argv) (third argv) :processes (parse-integer (fourth argv))))' \
+	 --load main.lisp \
 	 --entry main \
 	 --output $@
 

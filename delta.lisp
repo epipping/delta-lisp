@@ -96,8 +96,8 @@ If no chunk passes, nil is returned."
                     ((= return-value 0)
                      (iter (for p in pwr-list)
                            (after-each (terminate-process (slot-value p 'process))))
-                     (let* ((reduction (slot-value pwr 'result))
-                            (complement (slot-value reduction 'complement)))
+                     (let+ (((&slots-r/o (reduction result)) pwr)
+                            ((&slots-r/o complement) reduction))
                        (format t "Lines: ~a. Segments: ~a.~%"
                                (length complement) (1- numparts))
                        (indices->file complement *minimal-output-name*)
@@ -134,9 +134,9 @@ If no chunk passes, nil is returned."
                                           :complement complement))))
 
 (defun ddmin (indices numparts &key (initial-part 0))
-  (let* ((reduction (test-removal indices numparts initial-part))
-         (passing-subset (slot-value reduction 'complement))
-         (removed-part (slot-value reduction 'part))
+  (let+ (((&slots-r/o (passing-subset complement)
+                      (removed-part part))
+          (test-removal indices numparts initial-part))
          (subset-length (length passing-subset))
          (numindices (length indices)))
     (cond
@@ -163,8 +163,8 @@ when a file consisting of that subset is passed as its sole argument."
           (length indices) 1)
   (let ((process (run-on-subset indices)))
     (wait-for-process process)
-    (let* ((status-and-return (inspect-process process))
-           (return-value (slot-value status-and-return 'return-value)))
+    (let+ ((status-and-return (inspect-process process))
+           ((&slots-r/o return-value) status-and-return))
       (unless (eq return-value 0)
         (error "Initial input does not satisfy the predicate"))))
   (format t "Lines: ~a. Segments: ~a (granularity increased).~%"

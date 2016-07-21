@@ -12,11 +12,11 @@
   (external-program:signal-process process +term-signal+))
 
 (defun inspect-process (process)
-  (multiple-value-bind (status return-value)
-      (external-program:process-status process)
-    (make-instance 'status-and-return
-                   :status status
-                   :return-value return-value)))
+  (let+ (((&values status return-value)
+          (external-program:process-status process)))
+        (make-instance 'status-and-return
+                       :status status
+                       :return-value return-value)))
 
 (defun wait-for-process (process)
   ;; Functionality missing from external-program (2016/07/20)

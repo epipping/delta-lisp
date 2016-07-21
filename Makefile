@@ -29,7 +29,7 @@ run-delta-lisp:
 
 .PHONY: run-delta-lisp-standalone
 run-delta-lisp-standalone: delta-lisp-standalone
-	@time ./delta-lisp-standalone $(SCRIPT) $(INPUT) $(PROCESSES)
+	@time ./delta-lisp-standalone $(SCRIPT) $(INPUT) --processes=$(PROCESSES)
 
 buildapp:
 	@$(SBCL) \

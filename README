@@ -35,7 +35,7 @@ the makefile variables INPUT and SCRIPT as in
   make run-delta-lisp-standalone \
     INPUT=test-silly/input \
     SCRIPT=test-silly/test.sh \
-    PROCESSES=4
+    FLAGS='--processes=4'
 
 The makefile is convenient for testing but by no means necessary in
 order to use delta-lisp (and thus neither is quicklisp).

@@ -1,8 +1,9 @@
 INPUT  ?= ${PWD}/input
 SCRIPT ?= ${PWD}/test.sh
 
+FLAGS  ?= # --processes=4 --verbose
+
 # For lisp
-PROCESSES ?= 1
 SBCL      ?= sbcl
 
 # For perl
@@ -21,7 +22,7 @@ run-delta-perl:
 
 .PHONY: run-delta-lisp-standalone
 run-delta-lisp-standalone: delta-standalone
-	@time ./$< $(SCRIPT) $(INPUT) --processes=$(PROCESSES)
+	@time ./$< $(SCRIPT) $(INPUT) $(FLAGS)
 
 delta-standalone: $(LISP_FILES) main.lisp
 	@echo To install missing dependencies, consider installing quicklisp and running

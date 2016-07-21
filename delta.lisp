@@ -8,6 +8,7 @@
 (defvar *file-contents*)
 (defvar *number-of-lines* 0)
 (defvar *suffix*)
+(defvar *verbose*)
 
 (defconstant +sleep-between-checks+ 1e-4)
 
@@ -119,8 +120,9 @@ If no chunk passes, nil is returned."
                                :element-type 'character
                                :type *suffix*)
       (indices->file indices p)
-      (external-program:start *script-name*
-                              (list (namestring p)))))
+      (apply 'external-program:start
+             `(,*script-name* ,(list (namestring p))
+                              ,@(when *verbose* (list :output t))))))
 
 (defun test-removal-helper (indices numparts &key relative-part shift-by)
   (let* ((part (shift-and-wrap relative-part shift-by numparts))
@@ -178,7 +180,8 @@ when a file consisting of that subset is passed as its sole argument."
                                   (file-namestring filename))
                                (declare (ignore name))
                                type))
-                     (processes 1))
+                     (processes 1)
+                     (verbose nil))
   "Minimise the file given by `filename` under the constraint that
 `script-name` should continue to return 0 when passed the name of the
 resulting file as its sole argument.
@@ -188,6 +191,7 @@ If `filename` can be reduced, a file will be created by the name
 minimum. It will satisfy the condition of 1-minimility, i.e. that no
 different solution can be found by removing a single line."
   (read-file filename)
+  (setf *verbose* verbose)
   (setf *max-processes* processes)
   (setf *script-name* script-name)
   (setf *suffix* suffix)

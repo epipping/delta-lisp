@@ -2,4 +2,4 @@
   :serial t
   :depends-on (#:delta :getopt)
   :components ((:file "main"))
-  :entry-point "delta-standalone::main")
+  :entry-point "delta-standalone:main")

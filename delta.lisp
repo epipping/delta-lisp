@@ -99,10 +99,10 @@ If no chunk passes, nil is returned."
                            (after-each (terminate-process (slot-value p 'process))))
                      (let+ (((&slots-r/o (reduction result)) pwr)
                             ((&slots-r/o complement) reduction))
-                       (format t "Lines: ~a. Segments: ~a.~%"
-                               (length complement) (1- numparts))
-                       (indices->file complement *minimal-output-name*)
-                       (return-from reducing reduction)))
+                           (format t "Lines: ~a. Segments: ~a.~%"
+                                   (length complement) (1- numparts))
+                           (indices->file complement *minimal-output-name*)
+                           (return-from reducing reduction)))
                     ;; Otherwise: Treat the reduction as a failure
                     (t (setf pwr-list (remove pwr pwr-list)))))))
          ;; Return a dummy to signal overall reduction failure.

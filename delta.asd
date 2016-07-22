@@ -1,6 +1,6 @@
 (asdf:defsystem #:delta
   :serial t
-  :depends-on (#:uiop #:external-program #:iterate #:let-plus)
+  :depends-on (#:external-program #:iterate #:let-plus #:uiop)
   :components ((:file "package")
                (:file "processes" :depends-on ("package"))
                (:file "delta" :depends-on ("package"))))

@@ -35,7 +35,6 @@ delta-standalone: $(LISP_FILES) main.lisp
 	@$(SBCL) --non-interactive \
 	 --eval '(push (uiop:ensure-absolute-pathname *default-pathname-defaults*) asdf:*central-registry*)' \
 	 --eval '(asdf:disable-output-translations)' \
-	 --eval '(asdf:load-system :delta-standalone)' \
 	 --eval "(asdf:operate 'asdf:program-op :delta-standalone)" >/dev/null
 
 .PHONY: clean

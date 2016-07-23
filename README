@@ -6,8 +6,9 @@ complements. Both this implementation and the one from [1] skip the
 subset step.
 
 Any common lisp compiler should do but only sbcl has been
-tested. There are currently four external dependencies,
+tested. There are currently five external dependencies,
 
+  https://common-lisp.net/project/alexandria/
   https://common-lisp.net/project/external-program/
   https://common-lisp.net/project/iterate/
   https://github.com/tpapp/let-plus

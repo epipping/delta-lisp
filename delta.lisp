@@ -8,7 +8,9 @@
 (defvar *file-contents*)
 (defvar *number-of-lines* 0)
 (defvar *suffix*)
-(defvar *verbose*)
+(defvar *quiet*)
+(defvar *show-stdout*)
+(defvar *show-stderr*)
 
 (defconstant +sleep-between-checks+ 1e-4)
 
@@ -62,10 +64,11 @@ size."
   (mod (+ part shift) numparts))
 
 (defun report-status (lines segments &key (granularity-increased nil))
-  (format t (if granularity-increased
-                "Lines: ~a. Segments: ~a (granularity increased).~%"
-                "Lines: ~a. Segments: ~a.~%")
-          lines segments))
+  (unless *quiet*
+    (format t (if granularity-increased
+                  "Lines: ~a. Segments: ~a (granularity increased).~%"
+                  "Lines: ~a. Segments: ~a.~%")
+            lines segments)))
 
 (defun test-removal (indices numparts initial-part)
   "Check if removing certain subsets of `indices` yields a reduction.
@@ -118,16 +121,16 @@ If no chunk passes, nil is returned."
          (sleep +sleep-between-checks+))))
 
 (defun run-on-subset (indices)
-    (uiop:with-temporary-file (:pathname p
-                               :prefix "delta"
-                               :direction :output
-                               :keep t
-                               :element-type 'character
-                               :type *suffix*)
-      (indices->file indices p)
-      (apply 'external-program:start
-             `(,*script-name* ,(list (namestring p))
-                              ,@(when *verbose* (list :output t))))))
+  (uiop:with-temporary-file (:pathname p
+                             :prefix "delta"
+                             :direction :output
+                             :keep t
+                             :element-type 'character
+                             :type *suffix*)
+    (indices->file indices p)
+    (external-program:start *script-name* (list (namestring p))
+                            :output *show-stdout*
+                            :error *show-stderr*)))
 
 (defun test-removal-helper (indices numparts &key relative-part shift-by)
   (let* ((part (shift-and-wrap relative-part shift-by numparts))
@@ -183,7 +186,9 @@ when a file consisting of that subset is passed as its sole argument."
                                (declare (ignore name))
                                type))
                      (processes 1)
-                     (verbose nil))
+                     quiet
+                     show-stdout
+                     show-stderr)
   "Minimise the file given by `filename` under the constraint that
 `script-name` should continue to return 0 when passed the name of the
 resulting file as its sole argument.
@@ -193,7 +198,9 @@ If `filename` can be reduced, a file will be created by the name
 minimum. It will satisfy the condition of 1-minimility, i.e. that no
 different solution can be found by removing a single line."
   (read-file filename)
-  (setf *verbose* verbose)
+  (setf *quiet* quiet)
+  (setf *show-stdout* show-stdout)
+  (setf *show-stderr* show-stderr)
   (setf *max-processes* processes)
   (setf *script-name* script-name)
   (setf *suffix* suffix)

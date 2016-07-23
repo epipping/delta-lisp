@@ -61,6 +61,12 @@ size."
 (defun shift-and-wrap (part shift numparts)
   (mod (+ part shift) numparts))
 
+(defun report-status (lines segments &key (granularity-increased nil))
+  (format t (if granularity-increased
+                "Lines: ~a. Segments: ~a (granularity increased).~%"
+                "Lines: ~a. Segments: ~a.~%")
+          lines segments))
+
 (defun test-removal (indices numparts initial-part)
   "Check if removing certain subsets of `indices` yields a reduction.
 
@@ -99,8 +105,7 @@ If no chunk passes, nil is returned."
                            (after-each (terminate-process (slot-value p 'process))))
                      (let+ (((&slots-r/o (reduction result)) pwr)
                             ((&slots-r/o complement) reduction))
-                           (format t "Lines: ~a. Segments: ~a.~%"
-                                   (length complement) (1- numparts))
+                           (report-status (length complement) (1- numparts))
                            (indices->file complement *minimal-output-name*)
                            (return-from reducing reduction)))
                     ;; Otherwise: Treat the reduction as a failure
@@ -149,8 +154,7 @@ If no chunk passes, nil is returned."
       ;; Increase granularity.
       ((and (zerop subset-length) (< numparts numindices))
        (let ((new-numparts (min numindices (* 2 numparts))))
-         (format t "Lines: ~a. Segments: ~a (granularity increased).~%"
-                 numindices new-numparts)
+         (report-status numindices new-numparts :granularity-increased T)
          (ddmin indices new-numparts)))
       ;; Done: Cannot partition single-line input
       ((= subset-length 1) passing-subset)
@@ -161,16 +165,14 @@ If no chunk passes, nil is returned."
   "Minimise a subset of `*file-contents*` represented by the index
 list `indices` under the constraint that `*script-name*` returns 0
 when a file consisting of that subset is passed as its sole argument."
-  (format t "Lines: ~a. Segments: ~a.~%"
-          (length indices) 1)
+  (report-status (length indices) 1)
   (let ((process (run-on-subset indices)))
     (wait-for-process process)
     (let+ ((status-and-return (inspect-process process))
            ((&slots-r/o return-value) status-and-return))
       (unless (eq return-value 0)
         (error "Initial input does not satisfy the predicate"))))
-  (format t "Lines: ~a. Segments: ~a (granularity increased).~%"
-          (length indices) 2)
+  (report-status (length indices) 2 :granularity-increased T)
   (ddmin indices 2))
 
 (defun delta-file (script-name filename

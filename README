@@ -14,7 +14,11 @@ tested. There are currently five external dependencies,
   https://github.com/tpapp/let-plus
   https://github.com/keithj/getopt
 
-which can be installed, e.g., through quicklisp[3] via
+and for tests additionally
+
+  https://common-lisp.net/project/fiveam/
+
+all of which can be installed, e.g., through quicklisp[3] via
 
   make install-dependencies-via-quicklisp
 

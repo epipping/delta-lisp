@@ -37,6 +37,15 @@ delta-standalone: $(LISP_FILES) main.lisp
 	 --eval '(asdf:disable-output-translations)' \
 	 --eval "(asdf:operate 'asdf:program-op :delta-standalone)" >/dev/null
 
+.PHONY: test
+test:
+	@$(SBCL) --non-interactive \
+	 --eval '(push (uiop:ensure-absolute-pathname *default-pathname-defaults*) asdf:*central-registry*)' \
+	 --eval '(asdf:disable-output-translations)' \
+	 --eval "(asdf:operate 'asdf:load-op :delta-tests)" \
+	 --eval "(5am:run 'delta-tests::delta-utility-tests)" \
+     --quit
+
 .PHONY: clean
 clean:
 	@rm -rf \

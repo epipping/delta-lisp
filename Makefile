@@ -24,7 +24,10 @@ run-delta-perl:
 install-dependencies-via-quicklisp: delta.asd
 	sbcl \
 	 --eval '(push (uiop:ensure-absolute-pathname *default-pathname-defaults*) asdf:*central-registry*)' \
+	 --eval '(asdf:disable-output-translations)' \
+	 --eval '(ql:quickload "delta")' \
 	 --eval '(ql:quickload "delta-standalone")' \
+	 --eval '(ql:quickload "delta-tests")' \
 	 --quit
 
 .PHONY: run-delta-lisp

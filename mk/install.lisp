@@ -1,9 +1,7 @@
-(push (uiop:ensure-absolute-pathname *default-pathname-defaults*)
-      asdf:*central-registry*)'
-
-(asdf:disable-output-translations)
+(load "mk/path.lisp")
 
 (ql:quickload "delta")
 (ql:quickload "delta-standalone")
 (ql:quickload "delta-tests")
 
+(quit)

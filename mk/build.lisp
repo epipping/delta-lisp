@@ -1,9 +1,8 @@
-(push (uiop:ensure-absolute-pathname *default-pathname-defaults*)
-      asdf:*central-registry*)
+(load "mk/path.lisp")
 
-(asdf:disable-output-translations)
-
-(locally (declare (sb-ext:muffle-conditions 
-                   sb-kernel:redefinition-warning))
-  (handler-bind ((sb-kernel:redefinition-warning #'muffle-warning))
+(locally #+sbcl (declare (sb-ext:muffle-conditions
+                         sb-kernel:redefinition-warning))
+  (handler-bind (#+sbcl (sb-kernel:redefinition-warning #'muffle-warning))
     (asdf:operate 'asdf:program-op :delta-standalone)))
+
+(quit)

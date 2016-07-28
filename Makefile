@@ -22,32 +22,18 @@ run-delta-perl:
 
 .PHONY: install-dependencies-via-quicklisp
 install-dependencies-via-quicklisp: delta.asd
-	sbcl \
-	 --eval '(push (uiop:ensure-absolute-pathname *default-pathname-defaults*) asdf:*central-registry*)' \
-	 --eval '(asdf:disable-output-translations)' \
-	 --eval '(ql:quickload "delta")' \
-	 --eval '(ql:quickload "delta-standalone")' \
-	 --eval '(ql:quickload "delta-tests")' \
-	 --quit
+	@$(SBCL) --load mk/install.lisp --quit
 
 .PHONY: run-delta-lisp
 run-delta-lisp: delta-standalone
 	@time ./$< $(SCRIPT) $(INPUT) $(FLAGS)
 
 delta-standalone: $(LISP_FILES) main.lisp
-	@$(SBCL) --non-interactive \
-	 --eval '(push (uiop:ensure-absolute-pathname *default-pathname-defaults*) asdf:*central-registry*)' \
-	 --eval '(asdf:disable-output-translations)' \
-	 --eval "(asdf:operate 'asdf:program-op :delta-standalone)" >/dev/null
+	@$(SBCL) --non-interactive --load mk/build.lisp --quit
 
 .PHONY: test
 test:
-	@$(SBCL) --non-interactive \
-	 --eval '(push (uiop:ensure-absolute-pathname *default-pathname-defaults*) asdf:*central-registry*)' \
-	 --eval '(asdf:disable-output-translations)' \
-	 --eval "(asdf:operate 'asdf:load-op :delta-tests)" \
-	 --eval "(5am:run 'delta-tests::delta-utility-tests)" \
-     --quit
+	@$(SBCL) --non-interactive --load mk/test.lisp --quit
 
 .PHONY: clean
 clean:

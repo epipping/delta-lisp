@@ -5,7 +5,7 @@ The original delta algorithm considers first subsets and then their
 complements. Both this implementation and the one from [1] skip the
 subset step.
 
-Any common lisp compiler should do but only sbcl has been
+Any common lisp compiler should do but only sbcl and ccl have been
 tested. There are currently five external dependencies,
 
   https://common-lisp.net/project/alexandria/
@@ -22,13 +22,16 @@ all of which can be installed, e.g., through quicklisp[3] via
 
   make install-dependencies-via-quicklisp
 
-assuming that sbcl installed. UIOP is also used; since it is shipped
-alongside ASDF-3, it is not considered a real dependency, however.
+assuming that sbcl, ccl, or another lisp that supports `--load` is
+installed. UIOP is also used; since it is shipped alongside ASDF-3, it
+is not considered a real dependency, however.
 
 A sample makefile is provided that allows for easy back-and-forth
 switching between multiple implementations of delta, namely the common
 lisp implementation described herein and the one from [1] (in
-perl). With a shell inside a clone of this repository and sbcl installed
+perl). With a shell inside a clone of this repository and sbcl
+installed in a standard location (otherwise, `LISP` needs to be set
+accordingly)
 
   make run-delta-lisp
 

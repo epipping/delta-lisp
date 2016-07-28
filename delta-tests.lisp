@@ -1,9 +1,5 @@
 ;; -*- mode:common-lisp; indent-tabs-mode: nil -*-
 
-(defpackage #:delta-tests
-  (:use #:cl
-        #:5am))
-
 (in-package #:delta-tests)
 
 (def-suite delta-utility-tests

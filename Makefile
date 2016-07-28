@@ -28,7 +28,7 @@ install-dependencies-via-quicklisp: delta.asd
 run-delta-lisp: delta-standalone
 	@time ./$< $(SCRIPT) $(INPUT) $(FLAGS)
 
-delta-standalone: $(LISP_FILES) main.lisp
+delta-standalone: $(LISP_FILES) delta-standalone.lisp
 	@$(LISP) --load mk/build.lisp
 
 .PHONY: test

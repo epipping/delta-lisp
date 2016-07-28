@@ -41,8 +41,8 @@ delta takes its input and predicate from can be set on the command
 line or through the makefile variables INPUT and SCRIPT as in
 
   make run-delta-lisp \
-    INPUT=test-silly/input \
-    SCRIPT=test-silly/test.sh \
+    INPUT=t/silly/input \
+    SCRIPT=t/silly/test.sh \
     FLAGS='--processes=4'
 
 The makefile is convenient for testing but by no means necessary in

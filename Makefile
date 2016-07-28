@@ -3,7 +3,7 @@ SCRIPT ?= ${PWD}/test.sh
 
 FLAGS  ?= # --processes=4 --verbose
 
-# Expected to accept --load. Tested with sbcl
+# Expected to accept --load. Tested with sbcl, ccl
 LISP      ?= sbcl --non-interactive
 
 # For perl

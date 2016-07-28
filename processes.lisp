@@ -9,7 +9,15 @@
      (return-value :initarg :return-value)))
 
 (defun terminate-process (process)
-  (external-program:signal-process process +term-signal+))
+  #-ccl (external-program:signal-process process +term-signal+)
+  ;; CCL treats signals sent to dead processes as errors by default.
+  ;; Checking if a processes is alive and killing it conditionally
+  ;; creates a race condition.
+  ;; External-Process does not support the new keyword :ERROR-IF-EXITED yet.
+  ;; See also http://trac.clozure.com/ccl/ticket/1015
+  #+ccl (ccl:signal-external-process process +term-signal+
+                                     :error-if-exited nil))
+
 
 (defun inspect-process (process)
   (let+ (((&values status return-value)

@@ -2,7 +2,7 @@
 
 (in-package #:delta)
 
-(defconstant +term-signal+ 15)
+(alexandria:define-constant +term-signal+ 15 :test #'=)
 
 (defclass status-and-return ()
     ((status :initarg :status)
@@ -17,7 +17,6 @@
   ;; See also http://trac.clozure.com/ccl/ticket/1015
   #+ccl (ccl:signal-external-process process +term-signal+
                                      :error-if-exited nil))
-
 
 (defun inspect-process (process)
   (let+ (((&values status return-value)

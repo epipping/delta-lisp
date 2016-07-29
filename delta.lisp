@@ -12,7 +12,7 @@
 (defvar *show-stdout*)
 (defvar *show-stderr*)
 
-(defconstant +sleep-between-checks+ 1e-4)
+(alexandria:define-constant +sleep-between-checks+ 1e-4 :test #'=)
 
 (defun read-file (filename)
   "Split the file given by `filename` by newline and append the lines

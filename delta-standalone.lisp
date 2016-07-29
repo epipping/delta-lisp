@@ -2,14 +2,15 @@
 
 (in-package #:delta-standalone)
 
-(defvar *delta-options*
+(alexandria:define-constant +delta-options+
   '("processes=<integer>" "suffix=<string>" "quiet"
-    "show-stdout" "show-stderr"))
+    "show-stdout" "show-stderr")
+  :test #'equal)
 
 (defun print-usage (name)
   (format nil
           "Usage: ~a [options] test input~% Options: ~{--~a~^, ~}"
-          name *delta-options*))
+          name +delta-options+))
 
 (defun extract-option (assoc-cell)
   (or (cdr assoc-cell)
@@ -35,7 +36,7 @@
                          (mapcar #'(lambda (str)
                                      (list (subseq str 0 (position #\= str))
                                            :optional))
-                                 *delta-options*))))
+                                 +delta-options+))))
         (unless (= (length files) 2)
           (error (print-usage "delta")))
         (unless (null unhandled-options)
@@ -45,5 +46,5 @@
           (apply
            'delta:delta-file
            (append (list test test-input)
-                   (generate-option-arguments *delta-options*
+                   (generate-option-arguments +delta-options+
                                               options))))))

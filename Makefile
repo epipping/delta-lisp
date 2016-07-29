@@ -34,9 +34,3 @@ delta-standalone: $(LISP_FILES) delta-standalone.lisp delta-standalone.asd
 .PHONY: test
 test:
 	@$(LISP) --load mk/test.lisp
-
-.PHONY: clean
-clean:
-	@rm -rf \
-	 output output-minimal output-minimal-perl \
-	 delta-standalone *.fasl *.*fsl tmp*

@@ -38,7 +38,7 @@
                                            :optional))
                                  +delta-options+))))
         (unless (= (length files) 2)
-          (error (print-usage "delta")))
+          (error (print-usage (uiop:argv0))))
         (unless (null unhandled-options)
           (error (format nil "Unhandled option: ~a" (first unhandled-options))))
         (let ((test (first files))

@@ -28,6 +28,8 @@
 (defun wait-for-process (process)
   ;; Functionality missing from external-program (2016/07/20)
   ;; See also https://github.com/sellout/external-program/issues/30
+  ;; ECL's ext:external-process-wait looks broken (2016/07/30)
+  ;; See also https://gitlab.com/embeddable-common-lisp/ecl/issues/268
   #+clozure (ccl::external-process-wait process)
   #+(or cmu scl) (ext:process-wait process)
   #+sbcl (sb-ext:process-wait process))

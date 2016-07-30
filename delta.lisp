@@ -85,7 +85,7 @@ If no chunk passes, nil is returned."
                   (cond
                     ;; Successful exit: Kill everyone and return
                     ((= return-value 0)
-                     (iter (for p in pwr-list)
+                     (iter (for p in (delete process pwr-list))
                            (after-each (terminate-process (slot-value p 'process))))
                      (let+ (((&slots-r/o (reduction result)) pwr)
                             ((&slots-r/o complement) reduction))

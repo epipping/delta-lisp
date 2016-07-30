@@ -5,10 +5,9 @@ The original delta algorithm considers first subsets and then their
 complements. Both this implementation and the one from [1] skip the
 subset step.
 
-On top of ASDF-3, there are currently five external dependencies,
+On top of ASDF-3, there are currently four external dependencies,
 
   https://common-lisp.net/project/alexandria/
-  https://common-lisp.net/project/external-program/
   https://common-lisp.net/project/iterate/
   https://github.com/tpapp/let-plus
   https://github.com/keithj/getopt

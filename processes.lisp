@@ -2,35 +2,34 @@
 
 (in-package #:delta)
 
+(alexandria:define-constant +kill-signal+ 9 :test #'=)
 (alexandria:define-constant +term-signal+ 15 :test #'=)
 
-(defclass status-and-return ()
-    ((status :initarg :status)
-     (return-value :initarg :return-value)))
+;;; This functionality is currently missing from UIOP.
 
-(defun terminate-process (process)
-  #-ccl (external-program:signal-process process +term-signal+)
-  ;; CCL treats signals sent to dead processes as errors by default.
-  ;; Checking if a processes is alive and killing it conditionally
-  ;; creates a race condition. This is addressed through :error-if-exited
-  ;; See also http://trac.clozure.com/ccl/ticket/1015
-  ;; But external-program does not support it yet (2016/07/20)
-  ;; See also https://github.com/sellout/external-program/issues/32
-  #+ccl (ccl:signal-external-process process +term-signal+
-                                     :error-if-exited nil))
+(defun terminate-process (process-info &key force)
+  (let ((process (getf process-info :process))
+        (sig (if force +kill-signal+ +term-signal+)))
+    #+allegro (progn ; FIXME: untested
+                #+os-unix (excl.osi:kill process sig)
+                #+os-windows (uiop/run-program::%run-program
+                              (format nil "taskkill /f /pid ~a" process)
+                              :wait t)
+                #-(or os-unix os-windows) (error "Cannot terminate a process.")
+                (sys:reap-os-subprocess :pid process))
+    #+clozure (ccl:signal-external-process process sig :error-if-exited nil)
+    #+cmu (ext:process-kill process sig)
+    #+sbcl (sb-ext:process-kill process sig)
+    #+scl (ext:process-kill process sig) ; FIXME: untested
+    #+mkcl (mk-ext:terminate-process process :force force)
+    #-(or allegro clozure cmu mkcl sbcl) (error "Cannot terminate a process.")))
 
-(defun inspect-process (process)
-  (let+ (((&values status return-value)
-          (external-program:process-status process)))
-        (make-instance 'status-and-return
-                       :status status
-                       :return-value return-value)))
-
-(defun wait-for-process (process)
-  ;; Functionality missing from external-program (2016/07/20)
-  ;; See also https://github.com/sellout/external-program/issues/30
-  ;; ECL's ext:external-process-wait looks broken (2016/07/30)
-  ;; See also https://gitlab.com/embeddable-common-lisp/ecl/issues/268
-  #+clozure (ccl::external-process-wait process)
-  #+(or cmu scl) (ext:process-wait process)
-  #+sbcl (sb-ext:process-wait process))
+(defun process-running-p (process-info)
+  (let ((process (getf process-info :process)))
+    #+clozure (eq :running (ccl:external-process-status process))
+    #+cmu (eq :running (ext:process-status process))
+    #+ecl (eq :running (ext:external-process-status process))
+    #+mkcl (eq :running (mk-ext:process-status process))
+    #+sbcl (eq :running (sb-ext:process-status process))
+    #-(or clozure cmu ecl mkcl sbcl)
+    (error "Cannot determine if a process is running.")))

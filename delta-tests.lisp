@@ -34,7 +34,7 @@
 
 (test kill-the-dead
       "Killing a dead process should not be an error."
-      (let ((process (external-program:start "true" nil)))
-        (delta::wait-for-process process)
-        (is-false (eq (external-program:process-status process) :running))
-        (delta::terminate-process process)))
+      (let ((process-info (uiop/run-program::%run-program "true" :wait nil)))
+        (sleep 1)
+        (is-false (delta::process-running-p process-info))
+        (delta::terminate-process process-info)))

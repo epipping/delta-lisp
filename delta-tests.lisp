@@ -27,8 +27,8 @@
       (is (= 2 (delta::shift-and-wrap 6 6 10))))
 
 (def-suite delta-assumed-behaviour
-    :description "We expect this to work even though it might not be
-    guaranteed to.")
+  :description "We expect this to work even though it might not be
+  guaranteed to.")
 
 (in-suite delta-assumed-behaviour)
 

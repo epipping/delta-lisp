@@ -161,11 +161,8 @@ when a file consisting of that subset is passed as its sole argument."
 
 (defun delta-file (script-name filename
                    &key
-                     (suffix (multiple-value-bind (name type)
-                                 (uiop:split-name-type
-                                  (file-namestring filename))
-                               (declare (ignore name))
-                               type))
+                     (suffix (nth-value 1 (uiop:split-name-type
+                                           (file-namestring filename))))
                      (processes 1)
                      quiet
                      show-stdout

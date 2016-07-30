@@ -12,9 +12,10 @@
   #-ccl (external-program:signal-process process +term-signal+)
   ;; CCL treats signals sent to dead processes as errors by default.
   ;; Checking if a processes is alive and killing it conditionally
-  ;; creates a race condition.
-  ;; External-Process does not support the new keyword :ERROR-IF-EXITED yet.
+  ;; creates a race condition. This is addressed through :error-if-exited
   ;; See also http://trac.clozure.com/ccl/ticket/1015
+  ;; But external-program does not support it yet (2016/07/20)
+  ;; See also https://github.com/sellout/external-program/issues/32
   #+ccl (ccl:signal-external-process process +term-signal+
                                      :error-if-exited nil))
 

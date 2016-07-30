@@ -25,3 +25,16 @@
       (is (= 3 (delta::shift-and-wrap 3 0 10)))
       (is (= 4 (delta::shift-and-wrap 1 3 10)))
       (is (= 2 (delta::shift-and-wrap 6 6 10))))
+
+(def-suite delta-assumed-behaviour
+    :description "We expect this to work even though it might not be
+    guaranteed to.")
+
+(in-suite delta-assumed-behaviour)
+
+(test kill-the-dead
+      "Killing a dead process should not be an error."
+      (let ((process (external-program:start "true" nil)))
+        (delta::wait-for-process process)
+        (is-false (eq (external-program:process-status process) :running))
+        (delta::terminate-process process)))

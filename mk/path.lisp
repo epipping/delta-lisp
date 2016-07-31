@@ -3,7 +3,3 @@
        ;; Probably for good reasons but I don't see them.
        (truename "."))
       asdf:*central-registry*)
-(asdf:disable-output-translations)
-
-
-

@@ -3,8 +3,8 @@ SCRIPT ?= ${PWD}/test.sh
 
 FLAGS  ?= # --processes=4 --verbose
 
-# Expected to accept --load. Tested with sbcl, ccl
-LISP      ?= sbcl --non-interactive
+CL_LAUNCH         ?= cl
+CL_LAUNCH_OPTIONS ?= -Q
 
 # For perl
 DELTA_PERL       ?= delta
@@ -22,15 +22,15 @@ run-delta-perl:
 
 .PHONY: install-dependencies-via-quicklisp
 install-dependencies-via-quicklisp: delta.asd delta-standalone.asd delta-tests.asd
-	@$(LISP) --load mk/install.lisp
+	@$(CL_LAUNCH) $(CL_LAUNCH_OPTIONS) mk/install.lisp
 
 .PHONY: run-delta-lisp
 run-delta-lisp: delta-standalone
 	@time ./$< $(SCRIPT) $(INPUT) $(FLAGS)
 
 delta-standalone: $(LISP_FILES) delta-standalone.lisp delta-standalone.asd
-	@$(LISP) --load mk/build.lisp
+	@$(CL_LAUNCH) $(CL_LAUNCH_OPTIONS) mk/build.lisp
 
 .PHONY: test
 test:
-	@$(LISP) --load mk/test.lisp
+	@$(CL_LAUNCH) $(CL_LAUNCH_OPTIONS) mk/test.lisp

@@ -37,12 +37,12 @@ as strings to the array `*file-contents*`."
     (write-from-indices indices stream)))
 
 (defclass reduction ()
-    ((part :initarg :part :initform -1)
-     (complement :initarg :complement :initform nil)))
+  ((part :initarg :part :initform -1)
+   (complement :initarg :complement :initform nil)))
 
 (defclass process-with-result ()
-    ((process :initarg :process)
-     (result :initarg :result)))
+  ((process :initarg :process)
+   (result :initarg :result)))
 
 (defun report-status (lines segments &key (granularity-increased nil))
   (unless *quiet*
@@ -80,17 +80,17 @@ If no chunk passes, nil is returned."
                (after-each
                 (unless running
                   (cond
-                   ;; Successful exit: Kill everyone and return
-                   ((= 0 (uiop/run-program::%wait-process-result process))
-                    (iter (for p in (delete process pwr-list))
-                          (after-each (terminate-process (slot-value p 'process))))
-                    (let+ (((&slots-r/o (reduction result)) pwr)
-                           ((&slots-r/o complement) reduction))
-                      (report-status (length complement) (1- numparts))
-                      (indices->file complement *minimal-output-name*)
-                      (return-from reducing reduction)))
-                   ;; Otherwise: Treat the reduction as a failure
-                   (t (setf pwr-list (remove pwr pwr-list)))))))
+                    ;; Successful exit: Kill everyone and return
+                    ((= 0 (uiop/run-program::%wait-process-result process))
+                     (iter (for p in (delete process pwr-list))
+                           (after-each (terminate-process (slot-value p 'process))))
+                     (let+ (((&slots-r/o (reduction result)) pwr)
+                            ((&slots-r/o complement) reduction))
+                           (report-status (length complement) (1- numparts))
+                           (indices->file complement *minimal-output-name*)
+                           (return-from reducing reduction)))
+                    ;; Otherwise: Treat the reduction as a failure
+                    (t (setf pwr-list (remove pwr pwr-list)))))))
          ;; Return a dummy to signal overall reduction failure.
          (when (and (>= part numparts)
                     (zerop (length pwr-list)))
@@ -129,20 +129,20 @@ If no chunk passes, nil is returned."
           (test-removal indices numparts initial-part))
          (subset-length (length passing-subset))
          (numindices (length indices)))
-    (cond
-      ;; Keep granularity. Try subsequent complements (wraps around)
-      ((> subset-length 1)
-       (ddmin passing-subset (max (1- numparts) 2)
-              :initial-part removed-part))
-      ;; Increase granularity.
-      ((and (zerop subset-length) (< numparts numindices))
-       (let ((new-numparts (min numindices (* 2 numparts))))
-         (report-status numindices new-numparts :granularity-increased T)
-         (ddmin indices new-numparts)))
-      ;; Done: Cannot partition single-line input
-      ((= subset-length 1) passing-subset)
-      ;; Done: Unable to remove any subset of size 1.
-      (t indices))))
+        (cond
+          ;; Keep granularity. Try subsequent complements (wraps around)
+          ((> subset-length 1)
+           (ddmin passing-subset (max (1- numparts) 2)
+                  :initial-part removed-part))
+          ;; Increase granularity.
+          ((and (zerop subset-length) (< numparts numindices))
+           (let ((new-numparts (min numindices (* 2 numparts))))
+             (report-status numindices new-numparts :granularity-increased T)
+             (ddmin indices new-numparts)))
+          ;; Done: Cannot partition single-line input
+          ((= subset-length 1) passing-subset)
+          ;; Done: Unable to remove any subset of size 1.
+          (t indices))))
 
 (defun delta (indices)
   "Minimise a subset of `*file-contents*` represented by the index

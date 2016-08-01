@@ -3,8 +3,8 @@
 (in-package #:delta-standalone)
 
 (alexandria:define-constant +delta-options+
-  '("processes=<integer>" "suffix=<string>" "quiet"
-    "show-stdout" "show-stderr")
+    '("processes=<integer>" "suffix=<string>" "quiet"
+      "show-stdout" "show-stderr")
   :test #'equal)
 
 (defun print-usage (name)

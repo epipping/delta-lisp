@@ -1,5 +1,5 @@
-INPUT  ?= ${PWD}/input
-SCRIPT ?= ${PWD}/test.sh
+INPUT  ?= ${PWD}/t/silly/input
+SCRIPT ?= ${PWD}/t/silly/test.sh
 
 FLAGS  ?= # --processes=4 --verbose
 

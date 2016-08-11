@@ -3,8 +3,8 @@ SCRIPT ?= ${PWD}/t/silly/test.sh
 
 FLAGS  ?= # --processes=4 --verbose
 
-CL_LAUNCH         ?= cl
-CL_LAUNCH_OPTIONS ?= -Q
+CL_LAUNCH         ?= cl  # for roswell: ros
+CL_LAUNCH_OPTIONS ?= -Q  # for roswell: -Q -l
 
 # For perl
 DELTA_PERL       ?= delta

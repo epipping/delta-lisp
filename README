@@ -5,7 +5,8 @@ The original delta algorithm considers first subsets and then their
 complements. Both this implementation and the one from [1] skip the
 subset step.
 
-On top of ASDF-3, there are currently four external dependencies,
+On top of a bleeding-edge ASDF-3, there are currently four external
+dependencies,
 
   https://common-lisp.net/project/alexandria/
   https://common-lisp.net/project/iterate/
@@ -48,8 +49,8 @@ order to use delta-lisp (and thus neither is quicklisp).
 Each test consists of an input file and a test script that returns
 either 0 (to signal success) or anything else (to signal failure).
 
-SBCL and Clozure CL are regularly tested. An up-to-date list of
-supported common lisp compilers can be found at
+Clozure CL, LispWorks, and SBCL are regularly tested. An up-to-date
+list of supported common lisp compilers can be found at
 
   https://github.com/pipping/delta-lisp/wiki/Supported-lisp-compilers
 

@@ -10,7 +10,7 @@ CL_LAUNCH_OPTIONS ?= -Q  # for roswell: -Q -l
 DELTA_PERL       ?= delta
 DELTA_PERL_FLAGS ?= -quiet -cp_minimal=output-minimal-perl
 
-LISP_FILES = delta.lisp processes.lisp utilities.lisp
+LISP_FILES = delta.lisp utilities.lisp
 
 .PHONY: all
 all:

@@ -76,21 +76,25 @@ If no chunk passes, nil is returned."
          ;; Check if a process has terminated
          (iter (for pwr in pwr-list)
                (for process = (slot-value pwr 'process))
-               (for running = (process-running-p process))
                (after-each
-                (unless running
+                (unless (uiop:process-alive-p process)
                   (cond
                     ;; Successful exit: Kill everyone and return
-                    ((= 0 (uiop/run-program::%wait-process-result process))
-                     (iter (for p in (delete process pwr-list))
-                           (after-each (terminate-process (slot-value p 'process))))
+                    ((= 0 (uiop:wait-process process))
+                     (iter (for other-pwr in (delete process pwr-list))
+                           (for other-process = (slot-value other-pwr 'process))
+                           (after-each
+                            (uiop:terminate-process other-process)
+                            (uiop:wait-process other-process)
+                            (uiop:close-streams other-process)))
                      (let+ (((&slots-r/o (reduction result)) pwr)
                             ((&slots-r/o complement) reduction))
                            (report-status (length complement) (1- numparts))
                            (indices->file complement *minimal-output-name*)
                            (return-from reducing reduction)))
                     ;; Otherwise: Treat the reduction as a failure
-                    (t (setf pwr-list (remove pwr pwr-list)))))))
+                    (t (setf pwr-list (remove pwr pwr-list))))
+                  (uiop:close-streams process))))
          ;; Return a dummy to signal overall reduction failure.
          (when (and (>= part numparts)
                     (zerop (length pwr-list)))
@@ -106,11 +110,10 @@ If no chunk passes, nil is returned."
                              :element-type 'character
                              :type *suffix*)
     (indices->file indices p)
-    (uiop/run-program::%run-program (format nil "~a ~a"
-                                            *script-name* (namestring p))
-                                    :wait nil
-                                    :output *show-stdout*
-                                    :error-output *show-stderr*)))
+    (uiop:launch-program (format nil "~a ~a"
+                                 *script-name* (namestring p))
+                         :output *show-stdout*
+                         :error-output *show-stderr*)))
 
 (defun test-removal-helper (indices numparts &key relative-part shift-by)
   (let* ((part (shift-and-wrap relative-part shift-by numparts))
@@ -150,7 +153,7 @@ list `indices` under the constraint that `*script-name*` returns 0
 when a file consisting of that subset is passed as its sole argument."
   (report-status (length indices) 1)
   (let* ((process (run-on-subset indices))
-         (exit-code (uiop/run-program::%wait-process-result process)))
+         (exit-code (uiop:wait-process process)))
     (unless (= 0 exit-code)
       (error "Initial input does not satisfy the predicate")))
   (report-status (length indices) 2 :granularity-increased T)

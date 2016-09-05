@@ -110,7 +110,7 @@ If no chunk passes, nil is returned."
                                             *script-name* (namestring p))
                                     :wait nil
                                     :output *show-stdout*
-                                    :error *show-stderr*)))
+                                    :error-output *show-stderr*)))
 
 (defun test-removal-helper (indices numparts &key relative-part shift-by)
   (let* ((part (shift-and-wrap relative-part shift-by numparts))

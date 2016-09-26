@@ -3,5 +3,4 @@
 (defpackage #:delta
   (:export #:delta-file)
   (:use #:cl)
-  (:use #:let-plus)
-  (:use #:iterate))
+  (:use #:let-plus))

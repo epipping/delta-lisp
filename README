@@ -9,7 +9,6 @@ On top of a bleeding-edge ASDF-3 (3.1.7.26 or better), there are
 currently four external dependencies,
 
   https://common-lisp.net/project/alexandria/
-  https://common-lisp.net/project/iterate/
   https://github.com/tpapp/let-plus
   https://github.com/keithj/getopt
 

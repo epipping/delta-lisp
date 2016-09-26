@@ -6,7 +6,6 @@
 (defvar *script-name*)
 (defvar *minimal-output-name* "output-minimal")
 (defvar *file-contents*)
-(defvar *number-of-lines* 0)
 (defvar *suffix*)
 (defvar *quiet*)
 (defvar *show-stdout*)
@@ -17,16 +16,15 @@
 (defun read-file (filename)
   "Split the file given by `filename` by newline and append the lines
 as strings to the array `*file-contents*`."
-  (setf *file-contents* (make-array 0 :adjustable t :fill-pointer 0))
-  (iter (for line in-file filename :using #'read-line)
-        (after-each (vector-push-extend line *file-contents*)
-                    (incf *number-of-lines*))))
+  (setf *file-contents* (coerce (uiop:read-file-lines filename) 'vector)))
 
 (defun write-from-indices (indices stream)
   "Write the subset of `*file-contents*` represented by the index list
 `indices` to the stream `stream`."
-  (iter (for index in indices)
-        (after-each (format stream "~a~%" (aref *file-contents* index)))))
+  (loop
+     :for index :in indices
+     :for line = (aref *file-contents* index)
+     :do (format stream "~a~%" line)))
 
 (defun indices->file (indices filename)
   "Write the subset of `*file-contents*` represented by the index list
@@ -61,46 +59,42 @@ complement with respect to the subset will be tested. The first one
 that makes `*script-name*` pass will be returned.
 
 If no chunk passes, nil is returned."
-  (iter reducing
-        (with pwr-list)
-        (with part = 0)
-        (after-each
-         ;; Fill process list
-         (iter (until (or (>= part numparts)
-                          (>= (length pwr-list) *max-processes*)))
-               (after-each (push (test-removal-helper indices numparts
-                                                      :relative-part part
-                                                      :shift-by initial-part)
-                                 pwr-list)
-                           (incf part)))
-         ;; Check if a process has terminated
-         (iter (for pwr in pwr-list)
-               (for process = (slot-value pwr 'process))
-               (after-each
-                (unless (uiop:process-alive-p process)
-                  (cond
-                    ;; Successful exit: Kill everyone and return
-                    ((= 0 (uiop:wait-process process))
-                     (iter (for other-pwr in (delete process pwr-list))
-                           (for other-process = (slot-value other-pwr 'process))
-                           (after-each
-                            (uiop:terminate-process other-process)
-                            (uiop:wait-process other-process)
-                            (uiop:close-streams other-process)))
-                     (let+ (((&slots-r/o (reduction result)) pwr)
-                            ((&slots-r/o complement) reduction))
-                           (report-status (length complement) (1- numparts))
-                           (indices->file complement *minimal-output-name*)
-                           (return-from reducing reduction)))
-                    ;; Otherwise: Treat the reduction as a failure
-                    (t (setf pwr-list (remove pwr pwr-list))))
-                  (uiop:close-streams process))))
-         ;; Return a dummy to signal overall reduction failure.
-         (when (and (>= part numparts)
-                    (zerop (length pwr-list)))
-           (return-from reducing (make-instance 'reduction)))
-         ;; Sleep
-         (sleep +sleep-between-checks+))))
+  (loop
+     :with pwr-list
+     :with part = 0
+     :do (loop ;; Fill process list
+            :until (or (>= part numparts)
+                       (>= (length pwr-list) *max-processes*))
+            :do (push (test-removal-helper indices numparts
+                                           :relative-part part
+                                           :shift-by initial-part)
+                      pwr-list)
+            :do (incf part))
+     :do (loop ;; Check if a process has terminated
+            :for pwr :in pwr-list
+            :for process = (slot-value pwr 'process)
+            :unless (uiop:process-alive-p process)
+            :do (cond
+                  ;; Successful exit: Kill everyone and return
+                  ((= 0 (uiop:wait-process process))
+                   (loop
+                      :for other-pwr :in (delete process pwr-list)
+                      :for other-process = (slot-value other-pwr 'process)
+                      :do (uiop:terminate-process other-process)
+                      :do (uiop:wait-process other-process)
+                      :do (uiop:close-streams other-process))
+                   (let+ (((&slots-r/o (reduction result)) pwr)
+                          ((&slots-r/o complement) reduction))
+                         (report-status (length complement) (1- numparts))
+                         (indices->file complement *minimal-output-name*)
+                         (return-from test-removal reduction)))
+                  ;; Otherwise: Treat the reduction as a failure
+                  (t (setf pwr-list (remove pwr pwr-list))))
+            :and :do (uiop:close-streams process))
+     ;; Return a dummy to signal overall reduction failure.
+     :when (and (>= part numparts) (null pwr-list))
+     :do (return-from test-removal (make-instance 'reduction))
+     :do (sleep +sleep-between-checks+)))
 
 (defun run-on-subset (indices)
   (uiop:with-temporary-file (:pathname p
@@ -182,5 +176,7 @@ different solution can be found by removing a single line."
   (setf *max-processes* processes)
   (setf *script-name* script-name)
   (setf *suffix* suffix)
-  (delta (iter (for index from 0 below *number-of-lines*)
-               (collect index))))
+  (delta (loop
+            :for line :across *file-contents*
+            :for index :from 0
+            :collect index)))

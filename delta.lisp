@@ -49,6 +49,11 @@ as strings to the array `*file-contents*`."
                   "Lines: ~a. Segments: ~a.~%")
             lines segments)))
 
+(defun terminate-process-cleanly (process)
+  (uiop:terminate-process process)
+  (uiop:wait-process process)
+  (uiop:close-streams process))
+
 (defun test-removal (indices numparts initial-part)
   "Check if removing certain subsets of `indices` yields a reduction.
 
@@ -80,9 +85,7 @@ If no chunk passes, nil is returned."
                    (loop
                       :for other-pwr :in (delete process pwr-list)
                       :for other-process = (slot-value other-pwr 'process)
-                      :do (uiop:terminate-process other-process)
-                      :do (uiop:wait-process other-process)
-                      :do (uiop:close-streams other-process))
+                      :do (terminate-process-cleanly other-process))
                    (let+ (((&slots-r/o (reduction result)) pwr)
                           ((&slots-r/o complement) reduction))
                          (report-status (length complement) (1- numparts))

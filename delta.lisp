@@ -107,8 +107,7 @@ If no chunk passes, nil is returned."
                              :element-type 'character
                              :type *suffix*)
     (indices->file indices p)
-    (uiop:launch-program (format nil "~a ~a"
-                                 *script-name* (namestring p))
+    (uiop:launch-program (list *script-name* (namestring p))
                          :output *show-stdout*
                          :error-output *show-stderr*)))
 

@@ -108,8 +108,8 @@ If no chunk passes, nil is returned."
                              :type *suffix*)
     (indices->file indices p)
     (uiop:launch-program (list *script-name* (namestring p))
-                         :output *show-stdout*
-                         :error-output *show-stderr*)))
+                         :output (when *show-stdout* :interactive)
+                         :error-output (when *show-stderr* :interactive))))
 
 (defun test-removal-helper (indices numparts &key relative-part shift-by)
   (let* ((part (shift-and-wrap relative-part shift-by numparts))

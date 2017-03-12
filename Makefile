@@ -1,7 +1,7 @@
 INPUT  ?= ${PWD}/t/silly/input
 SCRIPT ?= ${PWD}/t/silly/test.sh
 
-FLAGS  ?= # --processes=4 --verbose
+FLAGS  ?= # --processes=4 --quiet
 
 CL_LAUNCH         ?= cl  # for roswell: ros
 CL_LAUNCH_OPTIONS ?= -Q  # for roswell: -Q -l

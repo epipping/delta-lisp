@@ -5,8 +5,8 @@ The original delta algorithm considers first subsets and then their
 complements. Both this implementation and the one from [1] skip the
 subset step.
 
-On top of a bleeding-edge ASDF-3 (3.1.7.26 or better), there are
-currently four external dependencies,
+On top of a very recent ASDF and UIOP (namely 3.2 or better), there
+are currently four external dependencies,
 
   https://common-lisp.net/project/alexandria/
   https://github.com/tpapp/let-plus
@@ -19,9 +19,6 @@ and for tests additionally
 all of which can be installed, e.g., through quicklisp[3] via
 
   make install-dependencies-via-quicklisp
-
-UIOP is also used; since it is shipped alongside ASDF-3, it is not
-considered a real dependency, however.
 
 A sample makefile is provided that allows for easy back-and-forth
 switching between multiple implementations of delta, namely the common

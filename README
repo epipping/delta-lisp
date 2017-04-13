@@ -16,34 +16,16 @@ and for tests additionally
 
   https://common-lisp.net/project/fiveam/
 
-all of which can be installed, e.g., through quicklisp[3] via
+all of which can be installed, e.g., through quicklisp[3].
 
-  make install-dependencies-via-quicklisp
+For a quick overview over the process that will allow you to try out
+delta-lisp, please see
 
-A sample makefile is provided that allows for easy back-and-forth
-switching between multiple implementations of delta, namely the common
-lisp implementation described herein and the one from [1] (in
-perl). With a shell inside a clone of this repository and sbcl
-installed in a standard location (otherwise, `LISP` needs to be set
-accordingly)
+  https://github.com/pipping/delta-lisp/wiki/How-to-install-run
 
-  make run-delta-lisp
-
-can be used to to compile the delta-lisp tool and use it to reduce the
-file ./input under the constraint that ./test.sh returns zero. Where
-delta takes its input and predicate from can be set on the command
-line or through the makefile variables INPUT and SCRIPT as in
-
-  make run-delta-lisp \
-    INPUT=t/silly/input \
-    SCRIPT=t/silly/test.sh \
-    FLAGS='--processes=4'
-
-The makefile is convenient for testing but by no means necessary in
-order to use delta-lisp (and thus neither is quicklisp).
-
-Each test consists of an input file and a test script that returns
-either 0 (to signal success) or anything else (to signal failure).
+Each testcase should consist of an input file and a test script that
+returns either 0 (to signal success) or anything else (to signal
+failure).
 
 Clozure CL, LispWorks, and SBCL are regularly tested. An up-to-date
 list of supported common lisp compilers can be found at

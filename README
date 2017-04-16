@@ -21,7 +21,7 @@ all of which can be installed, e.g., through quicklisp[3].
 For a quick overview over the process that will allow you to try out
 delta-lisp, please see
 
-  https://github.com/pipping/delta-lisp/wiki/How-to-install-run
+  https://github.com/pipping/delta-lisp/wiki/How-to-install-and-run
 
 Each testcase should consist of an input file and a test script that
 returns either 0 (to signal success) or anything else (to signal

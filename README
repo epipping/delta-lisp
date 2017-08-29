@@ -27,8 +27,7 @@ Each testcase should consist of an input file and a test script that
 returns either 0 (to signal success) or anything else (to signal
 failure).
 
-Clozure CL, LispWorks, and SBCL are regularly tested. An up-to-date
-list of supported common lisp compilers can be found at
+A list of supported Common Lisp compilers can be found at
 
   https://github.com/pipping/delta-lisp/wiki/Supported-lisp-compilers
 

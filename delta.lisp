@@ -51,8 +51,7 @@ as strings to the array `*file-contents*`."
 
 (defun terminate-process-cleanly (process)
   (uiop:terminate-process process)
-  (uiop:wait-process process)
-  (uiop:close-streams process))
+  (uiop:wait-process process))
 
 (defun test-removal (indices numparts initial-part)
   "Check if removing certain subsets of `indices` yields a reduction.

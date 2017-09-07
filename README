@@ -1,5 +1,5 @@
 Rewrite of delta[1] which is based on the ddmin algorithm described in
-[2], extended to put asynchronous IO to use.
+[2], extended to put asynchronous external processes to use.
 
 The original delta algorithm considers first subsets and then their
 complements. Both this implementation and the one from [1] skip the

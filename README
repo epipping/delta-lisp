@@ -6,7 +6,7 @@ complements. Both this implementation and the one from [1] skip the
 subset step.
 
 On top of a very recent ASDF and UIOP (namely 3.2 or better), there
-are currently four external dependencies,
+are currently three external dependencies,
 
   https://common-lisp.net/project/alexandria/
   https://github.com/tpapp/let-plus
@@ -21,7 +21,7 @@ all of which can be installed, e.g., through quicklisp[3].
 For a quick overview over the process that will allow you to try out
 delta-lisp, please see
 
-  https://github.com/pipping/delta-lisp/wiki/How-to-install-and-run
+  https://github.com/epipping/delta-lisp/wiki/How-to-install-and-run
 
 Each testcase should consist of an input file and a test script that
 returns either 0 (to signal success) or anything else (to signal
@@ -29,7 +29,7 @@ failure).
 
 A list of supported Common Lisp compilers can be found at
 
-  https://github.com/pipping/delta-lisp/wiki/Supported-lisp-compilers
+  https://github.com/epipping/delta-lisp/wiki/Supported-lisp-compilers
 
 [1] http://delta.tigris.org/
 [2] http://www.st.cs.uni-saarland.de/papers/tse2002/
